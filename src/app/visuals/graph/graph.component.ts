@@ -42,9 +42,10 @@ export class GraphComponent implements OnInit, OnChanges {
     }
 
     get options() {
+        let element = document.querySelector(".explore_section");
         return this._options = {
-            width: window.innerWidth,
-            height: window.innerHeight
+            width: element.clientWidth,
+            height: element.clientHeight
         };
     }
     openLinks(key){

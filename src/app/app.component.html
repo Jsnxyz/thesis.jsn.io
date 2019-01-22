@@ -1,3 +1,74 @@
-<ng-container *ngIf="nodes.length > 0">
-    <graph [nodes]="nodes" [links]="links" (nodeClicked)="openLinks($event)"></graph>
-</ng-container>
+<div class="header">Header</div>
+<div class="text_search_row">
+    <input type="text" class="search_box" placeholder="Enter your query" />
+    <button class="search_button">Search</button>
+</div>
+
+<div class="main_wrapper">
+    <div class="filter_sections">
+        <div class="filter_section">
+            <div class="filter_header"><span>Subject</span><span class="icon_wrap"><i class="material-icons">keyboard_arrow_up</i></span></div>
+            <div class="filter_checkbox">
+                <input type="checkbox" name="vehicle1" value="Bike"> World War (72)<br>
+                  <input type="checkbox" name="vehicle2" value="Car"> Women (20)<br>
+                  <input type="checkbox" name="vehicle3" value="Boat" checked> Religion (19)
+            </div>
+        </div>
+        <div class="filter_section">
+            <div class="filter_header"><span>Author</span><span class="icon_wrap"><i class="material-icons">keyboard_arrow_up</i></span></div>
+            <div class="filter_checkbox">
+                <input type="checkbox" name="vehicle1" value="Bike"> JK Rowling (72)<br>
+                  <input type="checkbox" name="vehicle2" value="Car"> Karl Marx (20)<br>
+                  <input type="checkbox" name="vehicle3" value="Boat" checked> Religion (19)
+            </div>
+        </div>
+        <div class="filter_section">
+            <div class="filter_header"><span>Publication Place</span><span class="icon_wrap"><i class="material-icons">keyboard_arrow_down</i></span></div>
+        </div>
+        <div class="filter_section">
+            <div class="filter_header"><span>Publication Year</span><span class="icon_wrap"><i class="material-icons">keyboard_arrow_down</i></span></div>
+        </div>
+    </div>
+    <div class="explore_section">
+        <ng-container *ngIf="nodes.length > 0">
+            <graph [nodes]="nodes" [links]="links" (nodeClicked)="openLinks($event)"></graph>
+        </ng-container>
+    </div>
+    <div class="results_section">
+        <div class="result">
+            <div class="result_title">Bookends extended - the reference management system.</div>
+            <div class="result_description">System requirements: Apple IIe with 80 column card or Apple IIc;128K; ProDOS; printer. Copyright and manual by Jonathan D. Ashwell</div>
+            <div class="result_year">c1985</div>
+        </div>
+        <div class="result">
+            <div class="result_title">Bookends extended - the reference management system.</div>
+            <div class="result_description">System requirements: Apple IIe with 80 column card or Apple IIc;128K; ProDOS; printer. Copyright and manual by Jonathan D. Ashwell</div>
+            <div class="result_year">c1985</div>
+        </div>
+        <div class="result">
+            <div class="result_title">Bookends extended - the reference management system.</div>
+            <div class="result_description">System requirements: Apple IIe with 80 column card or Apple IIc;128K; ProDOS; printer. Copyright and manual by Jonathan D. Ashwell</div>
+            <div class="result_year">c1985</div>
+        </div>
+        <div class="result">
+            <div class="result_title">Bookends extended - the reference management system.</div>
+            <div class="result_description">System requirements: Apple IIe with 80 column card or Apple IIc;128K; ProDOS; printer. Copyright and manual by Jonathan D. Ashwell</div>
+            <div class="result_year">c1985</div>
+        </div>
+        <div class="result">
+            <div class="result_title">Bookends extended - the reference management system.</div>
+            <div class="result_description">System requirements: Apple IIe with 80 column card or Apple IIc;128K; ProDOS; printer. Copyright and manual by Jonathan D. Ashwell</div>
+            <div class="result_year">c1985</div>
+        </div>
+        <div class="result">
+            <div class="result_title">Bookends extended - the reference management system.</div>
+            <div class="result_description">System requirements: Apple IIe with 80 column card or Apple IIc;128K; ProDOS; printer. Copyright and manual by Jonathan D. Ashwell</div>
+            <div class="result_year">c1985</div>
+        </div>
+        <div class="result">
+            <div class="result_title">Bookends extended - the reference management system.</div>
+            <div class="result_description">System requirements: Apple IIe with 80 column card or Apple IIc;128K; ProDOS; printer. Copyright and manual by Jonathan D. Ashwell</div>
+            <div class="result_year">c1985</div>
+        </div>
+    </div>
+</div>
