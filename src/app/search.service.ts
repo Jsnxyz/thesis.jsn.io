@@ -15,22 +15,6 @@ declare var LHS_PUBLIC_DOMAIN: string;
 export class SearchService {
     query = {
         "size": 0,
-        "query": {
-            "bool": {
-                "should": [
-                    {
-                        "multi_match": {
-                            "query": "multi agent",
-                            "fields": [
-                                "Main Title",
-                                "Title"
-                            ],
-                            "type": "phrase"
-                        }
-                    }
-                ]
-            }
-        },
         "aggs": {
             "nodes": {
                 "terms": {
@@ -112,6 +96,47 @@ export class SearchService {
             index: "bib-index",
             type: "bib-type",
             body: this.query
+        });
+    }
+    searchGraph(text){
+        return this.client.search({
+            index: "bib-index",
+            type: "bib-type",
+            body: {
+                "size": 0,
+                "query": {
+                    "bool": {
+                        "should": [
+                            {
+                                "multi_match": {
+                                    "query": text,
+                                    "fields": [
+                                        "Main Title",
+                                        "Title"
+                                    ],
+                                    "type": "phrase"
+                                }
+                            }
+                        ]
+                    }
+                },
+                "aggs": {
+                    "nodes": {
+                        "terms": {
+                            "field": "Topics.keyword",
+                            "size": 200
+                        },
+                        "aggs": {
+                            "edges": {
+                                "terms": {
+                                    "field": "Topics.keyword",
+                                    "size": 200
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         });
     }
 }

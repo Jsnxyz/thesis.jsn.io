@@ -82,4 +82,38 @@ export class AppComponent implements OnInit {
         }
         this.links = links;
     }
+    searchG(text) {
+        this.links = [];
+        this.es.searchGraph(text)
+
+            .then(response => {
+                const N = response.aggregations.nodes.buckets.length,
+                    getIndex = number => number - 1;
+                let nodes: Node[] = [];
+                this.res = response.aggregations.nodes.buckets;
+                for (let node of this.res) {
+                    nodes.push(new Node(node.key));
+                }
+                let nodeIter = 0;
+                for (let node of this.res) {
+                    for (let edge of node.edges.buckets) {
+                        if (edge.key !== node.key) {
+                            nodes[nodeIter].linkCount++;
+                            let edgeIndex = nodes.findIndex(function (item, i) {
+                                return item.id === edge.key
+                            });
+                            nodes[edgeIndex].linkCount++;
+                            // links.push(new Link(node.key,edge.key));
+                        }
+                    }
+                    nodeIter++;
+                }
+                this.nodes = nodes;
+            }, error => {
+                console.error(error);
+            }).then(() => {
+                console.log('Search Completed!');
+            }
+            );
+    }
 }

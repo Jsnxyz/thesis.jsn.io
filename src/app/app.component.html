@@ -1,7 +1,7 @@
 <div class="header">Header</div>
 <div class="text_search_row">
-    <input type="text" class="search_box" placeholder="Enter your query" />
-    <button class="search_button">Search</button>
+    <input type="text" class="search_box" placeholder="Enter your query" #search />
+    <button class="search_button" (click)="searchG(search.value)" >Search</button>
 </div>
 
 <div class="main_wrapper">
