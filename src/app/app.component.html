@@ -1,0 +1,3 @@
+<ng-container *ngIf="nodes.length > 0">
+    <graph [nodes]="nodes" [links]="links" (nodeClicked)="openLinks($event)"></graph>
+</ng-container>
