@@ -20,7 +20,7 @@ export class GraphComponent implements OnInit, OnChanges {
     @Input('links') links;
     @Output() nodeClicked = new EventEmitter();
     graph: ForceDirectedGraph;
-    private _options: { width, height } = { width: 800, height: 600 };
+    _options: { width, height } = { width: 800, height: 600 };
 
     @HostListener('window:resize', ['$event'])
     onResize(event) {
