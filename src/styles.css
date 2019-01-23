@@ -6,11 +6,13 @@ body, html {
     font-family: 'Roboto';
     max-height: 100vh;
     max-width: 100vw;
+    min-height:100vh;
+    min-width: 100vw;
 }
 * {
     box-sizing: border-box;
 }
 body {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
 }

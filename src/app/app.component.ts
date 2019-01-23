@@ -14,39 +14,23 @@ export class AppComponent implements OnInit {
     links: Link[] = [];
     realLinks: Link[] = [];
     client: Client;
-    res: any = {};
-
+    graphResults: any = [];
+    docResults:any = [];
+    searchBoxText:string = "";
     constructor(private es: SearchService) {
     }
     ngOnInit() {
         this.es.makeConnections()
-
             .then(response => {
                 const N = response.aggregations.nodes.buckets.length,
                     getIndex = number => number - 1;
-
-                /** constructing the nodes array */
-                // for (let i = 1; i <= N; i++) {
-                //     this.nodes.push(new Node(i));
-                // }
-
-                // for (let i = 1; i <= N; i++) {
-                //     for (let m = 2; i * m <= N; m++) {
-                //         /** increasing connections toll on connecting nodes */
-                //         this.nodes[getIndex(i)].linkCount++;
-                //         this.nodes[getIndex(i * m)].linkCount++;
-
-                //         /** connecting the nodes before starting the simulation */
-                //         this.links.push(new Link(i, i * m));
-                //     }
-                // }
                 let nodes: Node[] = [];
-                this.res = response.aggregations.nodes.buckets;
-                for (let node of this.res) {
+                this.graphResults = response.aggregations.nodes.buckets;
+                for (let node of this.graphResults) {
                     nodes.push(new Node(node.key));
                 }
                 let nodeIter = 0;
-                for (let node of this.res) {
+                for (let node of this.graphResults) {
                     for (let edge of node.edges.buckets) {
                         if (edge.key !== node.key) {
                             nodes[nodeIter].linkCount++;
@@ -70,32 +54,37 @@ export class AppComponent implements OnInit {
 
     }
     openLinks(key) {
-        let nodeIndex = this.res.findIndex(function (item, i) {
+        let nodeIndex = this.graphResults.findIndex(function (item, i) {
             return item.key === key
         });
         let links: Link[] = [];
 
-        for (let edge of this.res[nodeIndex].edges.buckets) {
+        for (let edge of this.graphResults[nodeIndex].edges.buckets) {
             if (edge.key !== key) {
                 links.push(new Link(key, edge.key));
             }
         }
         this.links = links;
+        this.getResultByTopics(key,this.searchBoxText);
     }
-    searchG(text) {
+    //getNetwork
+    getGraphAndDocs(text){
+        this.getNetwork(text);
+        this.getResultDocs(text);
+    }
+    getNetwork(text) {
         this.links = [];
         this.es.searchGraph(text)
-
             .then(response => {
                 const N = response.aggregations.nodes.buckets.length,
                     getIndex = number => number - 1;
                 let nodes: Node[] = [];
-                this.res = response.aggregations.nodes.buckets;
-                for (let node of this.res) {
+                this.graphResults = response.aggregations.nodes.buckets;
+                for (let node of this.graphResults) {
                     nodes.push(new Node(node.key));
                 }
                 let nodeIter = 0;
-                for (let node of this.res) {
+                for (let node of this.graphResults) {
                     for (let edge of node.edges.buckets) {
                         if (edge.key !== node.key) {
                             nodes[nodeIter].linkCount++;
@@ -113,7 +102,28 @@ export class AppComponent implements OnInit {
                 console.error(error);
             }).then(() => {
                 console.log('Search Completed!');
-            }
-            );
+            });
+    }
+    //get facets and hits. 
+    getResultDocs(text){
+        this.es.getDocuments(text)
+            .then(response => {
+                this.docResults = response.hits.hits;
+            }, error => {
+                console.error(error);
+            }).then(() => {
+                console.log('Search Completed!');
+            });
+    }
+    getResultByTopics(topic,text){
+        text = text || "";
+        this.es.getDocumentsByTopic(topic,text)
+            .then(response => {
+                this.docResults = response.hits.hits;
+            }, error => {
+                console.error(error);
+            }).then(() => {
+                console.log('Search Completed!');
+            });
     }
 }

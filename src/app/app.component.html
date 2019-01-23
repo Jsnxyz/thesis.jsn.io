@@ -1,7 +1,7 @@
 <div class="header">Header</div>
 <div class="text_search_row">
-    <input type="text" class="search_box" placeholder="Enter your query" #search />
-    <button class="search_button" (click)="searchG(search.value)" >Search</button>
+    <input type="text" class="search_box" [(ngModel)]="searchBoxText" placeholder="Enter your query" #search />
+    <button class="search_button" (click)="getGraphAndDocs(searchBoxText)" >Search</button>
 </div>
 
 <div class="main_wrapper">
@@ -35,40 +35,10 @@
         </ng-container>
     </div>
     <div class="results_section">
-        <div class="result">
-            <div class="result_title">Bookends extended - the reference management system.</div>
-            <div class="result_description">System requirements: Apple IIe with 80 column card or Apple IIc;128K; ProDOS; printer. Copyright and manual by Jonathan D. Ashwell</div>
-            <div class="result_year">c1985</div>
-        </div>
-        <div class="result">
-            <div class="result_title">Bookends extended - the reference management system.</div>
-            <div class="result_description">System requirements: Apple IIe with 80 column card or Apple IIc;128K; ProDOS; printer. Copyright and manual by Jonathan D. Ashwell</div>
-            <div class="result_year">c1985</div>
-        </div>
-        <div class="result">
-            <div class="result_title">Bookends extended - the reference management system.</div>
-            <div class="result_description">System requirements: Apple IIe with 80 column card or Apple IIc;128K; ProDOS; printer. Copyright and manual by Jonathan D. Ashwell</div>
-            <div class="result_year">c1985</div>
-        </div>
-        <div class="result">
-            <div class="result_title">Bookends extended - the reference management system.</div>
-            <div class="result_description">System requirements: Apple IIe with 80 column card or Apple IIc;128K; ProDOS; printer. Copyright and manual by Jonathan D. Ashwell</div>
-            <div class="result_year">c1985</div>
-        </div>
-        <div class="result">
-            <div class="result_title">Bookends extended - the reference management system.</div>
-            <div class="result_description">System requirements: Apple IIe with 80 column card or Apple IIc;128K; ProDOS; printer. Copyright and manual by Jonathan D. Ashwell</div>
-            <div class="result_year">c1985</div>
-        </div>
-        <div class="result">
-            <div class="result_title">Bookends extended - the reference management system.</div>
-            <div class="result_description">System requirements: Apple IIe with 80 column card or Apple IIc;128K; ProDOS; printer. Copyright and manual by Jonathan D. Ashwell</div>
-            <div class="result_year">c1985</div>
-        </div>
-        <div class="result">
-            <div class="result_title">Bookends extended - the reference management system.</div>
-            <div class="result_description">System requirements: Apple IIe with 80 column card or Apple IIc;128K; ProDOS; printer. Copyright and manual by Jonathan D. Ashwell</div>
-            <div class="result_year">c1985</div>
+        <div class="result" *ngFor="let doc of docResults">
+            <div class="result_title" [innerHtml]="doc._source['Uniform Title'] || doc._source['Main Title']"></div>
+            <div *ngIf="doc._source['Description']" class="result_description" [innerHtml]="doc._source['Description']"></div>
+            <div *ngIf="doc._source['Subjects']" [innerHtml]="doc._source['Subjects']" class="result_year"></div>
         </div>
     </div>
 </div>

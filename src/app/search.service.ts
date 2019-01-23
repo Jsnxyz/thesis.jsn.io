@@ -98,7 +98,7 @@ export class SearchService {
             body: this.query
         });
     }
-    searchGraph(text){
+    searchGraph(text) {
         return this.client.search({
             index: "bib-index",
             type: "bib-type",
@@ -137,6 +137,79 @@ export class SearchService {
                     }
                 }
             }
+        });
+    }
+    getDocuments(text) {
+        return this.client.search({
+            index: "bib-index",
+            type: "bib-type",
+            _source: "Uniform Title,Main Title,Contributors,Description,Subjects,Topics",
+            body: {
+                "query": {
+                    "bool": {
+                        "should": [
+                            {
+                                "multi_match": {
+                                    "query": text,
+                                    "fields": [
+                                        "Creator^2",
+                                        "Title^4",
+                                        "Description",
+                                        "ISBN",
+                                        "ISSN",
+                                        "Publisher^2",
+                                        "Serial Title",
+                                        "Series^3",
+                                        "Subjects^2"
+                                    ],
+                                    "type": "phrase"
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
+        });
+    }
+    getDocumentsByTopic(topic, text: string = "") {
+        let query:any = {
+            "query": {
+                "bool": {
+                    "should": [
+                        {
+                            "term": {
+                                "Topics.keyword": topic
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+        if (text) {
+            let textQuery = {
+                "multi_match": {
+                    "query": text,
+                    "fields": [
+                        "Creator^2",
+                        "Title^4",
+                        "Description",
+                        "ISBN",
+                        "ISSN",
+                        "Publisher^2",
+                        "Serial Title",
+                        "Series^3",
+                        "Subjects^2"
+                    ],
+                    "type": "phrase"
+                }
+            }
+            query.query.bool.should.push(textQuery);
+        }
+        return this.client.search({
+            index: "bib-index",
+            type: "bib-type",
+            _source: "Uniform Title,Main Title,Contributors,Description,Subjects,Topics",
+            body: query
         });
     }
 }
