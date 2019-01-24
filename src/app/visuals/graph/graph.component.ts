@@ -7,7 +7,7 @@ import { D3Service, ForceDirectedGraph, Node } from '../../d3';
     template: `
     <svg #svg [attr.width]="_options.width" [attr.height]="_options.height">
       <g [zoomableOf]="svg">
-        <g [linkVisual]="link" *ngFor="let link of links"></g>
+        <g [linkHover]="link" [linkVisual]="link" *ngFor="let link of links"></g>
         <g [nodeVisual]="node" (click)=openLinks(node.id) *ngFor="let node of nodes"
             [draggableNode]="node" [draggableInGraph]="graph"></g>
       </g>
@@ -51,4 +51,5 @@ export class GraphComponent implements OnInit, OnChanges {
     openLinks(key){
         this.nodeClicked.emit(key);
     }
+
 }

@@ -126,4 +126,16 @@ export class AppComponent implements OnInit {
                 console.log('Search Completed!');
             });
     }
+    limitText(text:any){
+        text = text.toString();
+        if(text.length > 150){
+            text = text.toString().substr(0,150) + " ..";
+        } else {
+            text = text.toString().substr(0,150)
+        }
+        return text;
+    }
+    getUnique(arr){
+        return Array.from(new Set(arr));
+    }
 }

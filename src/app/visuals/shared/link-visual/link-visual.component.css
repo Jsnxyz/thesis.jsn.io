@@ -1,4 +1,9 @@
 .link {
-    stroke-width: 0.25;
+    stroke-width: 2;
     stroke: #999;
+    cursor: pointer;
+}
+.link:hover {
+    stroke-width: 3;
+    stroke: #000;
 }

@@ -175,7 +175,7 @@ export class SearchService {
         let query:any = {
             "query": {
                 "bool": {
-                    "should": [
+                    "must": [
                         {
                             "term": {
                                 "Topics.keyword": topic
@@ -203,7 +203,7 @@ export class SearchService {
                     "type": "phrase"
                 }
             }
-            query.query.bool.should.push(textQuery);
+            query.query.bool.must.push(textQuery);
         }
         return this.client.search({
             index: "bib-index",

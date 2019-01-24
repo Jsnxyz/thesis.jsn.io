@@ -37,8 +37,18 @@
     <div class="results_section">
         <div class="result" *ngFor="let doc of docResults">
             <div class="result_title" [innerHtml]="doc._source['Uniform Title'] || doc._source['Main Title']"></div>
-            <div *ngIf="doc._source['Description']" class="result_description" [innerHtml]="doc._source['Description']"></div>
-            <div *ngIf="doc._source['Subjects']" [innerHtml]="doc._source['Subjects']" class="result_year"></div>
+            <div *ngIf="doc._source['Description']" class="result_description">
+                <div class="result_clamp" [innerHtml]="limitText(doc._source['Description'])"></div>
+            </div>
+            <div *ngIf="doc._source['Subjects']"  class="result_year">
+                <div class="result_subject">
+                    <a class="result_links" *ngFor="let subject of getUnique(doc._source['Subjects'])" [innerHtml]="subject"></a>
+                </div>
+            </div>
+            <div *ngIf="doc._source['Topics']" class="result_year result_topic">
+                <a class="result_links" *ngFor="let topic of doc._source['Topics']" [innerHtml]="topic"></a>
+            </div>
         </div>
     </div>
 </div>
+<div class="tooltip" style="opacity: 0"></div>
