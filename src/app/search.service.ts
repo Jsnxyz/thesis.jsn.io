@@ -141,54 +141,106 @@ export class SearchService {
             body: this.network_facet_query
         });
     }
-
-    getDocsQuery(text){
+    getSkeletonQuery(){
         return {
             "query": {
                 "bool": {
                     "must": [
-                        {
-                            "multi_match": {
-                                "query": text,
-                                "fields": [
-                                    "Creator^2",
-                                    "Title^4",
-                                    "Description",
-                                    "ISBN",
-                                    "ISSN",
-                                    "Publisher^2",
-                                    "Serial Title",
-                                    "Series^3",
-                                    "Subjects^2"
-                                ],
-                                "type": "phrase"
-                            }
-                        }
+                        
                     ]
                 }
             }
         }
     }
+    getDocsQuery(text){
+        let query = this.getSkeletonQuery();
+        query.query.bool.must.push({
+            "multi_match": {
+                "query": text,
+                "fields": [
+                    "Creator^2",
+                    "Title^4",
+                    "Description",
+                    "ISBN",
+                    "ISSN",
+                    "Publisher^2",
+                    "Serial Title",
+                    "Series^3",
+                    "Subjects^2"
+                ],
+                "type": "phrase"
+            }
+        });
+    }
 
-    searchGraph(text) {
-        let query = this.getDocsQuery(text);
+    searchGraph(text,facets?:any) {
+        let query;
+        if(text){
+            query = this.getDocsQuery(text);
+        } else {
+            query = this.getSkeletonQuery();
+        }
         query["size"] = 0;
         query["aggs"] = this.network_facet_query.aggs;
+        let facet_query = this.loadFacetsToQuery(facets);
+        for(let facet of facet_query){
+            query["query"]["bool"]["must"].push(facet);
+        }
         return this.client.search({
             index: "bib-index",
             type: "bib-type",
             body: query
         });
     }
-    getDocuments(text) {
+    getGraphNoFacetUpdate(text,facets?:any){
+        let query;
+        if(text){
+            query = this.getDocsQuery(text);
+        } else {
+            query = this.getSkeletonQuery();
+        }
+        query["size"] = 0;
+        query["aggs"] = this.network_query.aggs;
+        return this.client.search({
+            index: "bib-index",
+            type: "bib-type",
+            body: query
+        });
+    }
+    loadFacetsToQuery(facets){
+        let facet_arr = [];
+        for(let facet in facets){
+            let facetName = this.removeUnderscore(facet);
+            if(facets[facet].length > 0){
+                let term = { terms : {}};
+                term.terms[facetName + ".keyword"] = facets[facet];
+                facet_arr.push(term);
+            }
+        }
+        return facet_arr;
+    }
+    removeUnderscore(text){
+        return text.replace("_"," ");
+    }
+    getDocuments(text,facets?:any) {
+        let query;
+        if(text){
+            query = this.getDocsQuery(text);
+        } else {
+            query = this.getSkeletonQuery();
+        }
+        let facet_query = this.loadFacetsToQuery(facets);
+        for(let facet of facet_query){
+            query["query"]["bool"]["must"].push(facet);
+        }
         return this.client.search({
             index: "bib-index",
             type: "bib-type",
             _source: "Uniform Title,Main Title,Contributors,Description,Subjects,Topics",
-            body: this.getDocsQuery(text)
+            body: query
         });
     }
-    getDocumentsByTopic(text: string = "", topic, facets = {} ) {
+    getDocumentsByTopic(text: string = "", topic, facets?:any ) {
         let query: any = {
             "query": {
                 "bool": {

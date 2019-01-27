@@ -5,10 +5,11 @@ import { Client } from 'elasticsearch-browser';
 import { SearchService } from './search.service';
 
 interface Facets {
-    subjects?: any;
-    year?: any;
-    publisher?: any;
-    contributors?: any;
+    Subjects?: any;
+    Publication_Year?: any;
+    Publisher_Name?: any;
+    Contributors?: any;
+    Topics?: any;
 }
 @Component({
     selector: 'app-root',
@@ -23,8 +24,9 @@ export class AppComponent implements OnInit {
     graphResults: any = [];
     docResults: any = [];
     searchBoxText: string = "";
+    savedSearchText: string = "";
     facets: Facets = {};
-    selectedFacets:Facets = {};
+    selectedFacets: Facets = {};
     getKeys(object: {}) {
         return Object.keys(object);
     }
@@ -66,11 +68,14 @@ export class AppComponent implements OnInit {
 
 
     }
+    removeUnderscore(text) {
+        return text.replace("_", " ");
+    }
     loadFacets(aggs) {
-        this.facets.contributors = aggs.contributors_facet ? aggs.contributors_facet.buckets : [];
-        this.facets.publisher = aggs.publisher_facet ? aggs.publisher_facet.buckets : [];
-        this.facets.year = aggs.publication_year_facet ? aggs.publication_year_facet.buckets : [];
-        this.facets.subjects = aggs.subject_facet ? aggs.subject_facet.buckets : [];
+        this.facets.Contributors = aggs.contributors_facet ? aggs.contributors_facet.buckets : [];
+        this.facets.Publisher_Name = aggs.publisher_facet ? aggs.publisher_facet.buckets : [];
+        this.facets.Publication_Year = aggs.publication_year_facet ? aggs.publication_year_facet.buckets : [];
+        this.facets.Subjects = aggs.subject_facet ? aggs.subject_facet.buckets : [];
     }
 
     openLinks(key) {
@@ -89,46 +94,74 @@ export class AppComponent implements OnInit {
     }
     //getNetwork
     getGraphAndDocs(text) {
+        this.savedSearchText = text;
         this.getNetwork(text);
         this.getResultDocs(text);
     }
     getNetwork(text) {
         this.links = [];
-        this.es.searchGraph(text)
+        this.es.searchGraph(text, this.selectedFacets)
             .then(response => {
-                const N = response.aggregations.nodes.buckets.length,
-                    getIndex = number => number - 1;
-                let nodes: Node[] = [];
-                this.graphResults = response.aggregations.nodes.buckets;
-                this.loadFacets(response.aggregations);
-                let max = 0;
-                this.graphResults.forEach(element => {
-                    if (element.doc_count > max) {
-                        max = element.doc_count;
-                    }
-                });
-                for (let node of this.graphResults) {
-                    nodes.push(new Node(node.key, max));
-                }
-                let nodeIter = 0;
-                for (let node of this.graphResults) {
-                    for (let edge of node.edges.buckets) {
-                        if (edge.key !== node.key) {
-                            nodes[nodeIter].linkCount = node.doc_count;
-                        }
-                    }
-                    nodeIter++;
-                }
-                this.nodes = nodes;
+                this.graphUpdate(response,true);
             }, error => {
                 console.error(error);
             }).then(() => {
                 console.log('Search Completed!');
             });
     }
+    getNetworkWithoutFacetUpdate(text){
+        this.es.getGraphNoFacetUpdate(text, this.selectedFacets)
+            .then(response => {
+                this.links = [];
+                this.graphUpdate(response,false);
+            }, error => {
+                console.error(error);
+            }).then(() => {
+                console.log('Search Completed!');
+                if(this.selectedFacets.Topics.length === 1){
+                    this.openLinks(this.selectedFacets.Topics[0]);
+                }
+            });
+        
+    }
+    graphUpdate(response, loadFacet) {
+        const N = response.aggregations.nodes.buckets.length,
+            getIndex = number => number - 1;
+        let nodes: Node[] = [];
+        this.graphResults = response.aggregations.nodes.buckets;
+        if(loadFacet){
+            this.loadFacets(response.aggregations);
+        }
+        let max = 0;
+        this.graphResults.forEach(element => {
+            if (element.doc_count > max) {
+                max = element.doc_count;
+            }
+        });
+        for (let node of this.graphResults) {
+            nodes.push(new Node(node.key, max));
+        }
+        let nodeIter = 0;
+        for (let node of this.graphResults) {
+            for (let edge of node.edges.buckets) {
+                if (edge.key !== node.key) {
+                    nodes[nodeIter].linkCount = node.doc_count;
+                }
+            }
+            nodeIter++;
+        }
+        for(let node of nodes){
+            const nodeIndex = this.nodes.findIndex(function (item, i) {
+                return item.id === node.id
+            });
+            this.nodes[nodeIndex] = node;
+        }
+        this.nodes.filter(value => -1 !== nodes.indexOf(value));
+        // this.nodes = nodes;
+    }
     //get facets and hits. 
     getResultDocs(text) {
-        this.es.getDocuments(text)
+        this.es.getDocuments(text, this.selectedFacets)
             .then(response => {
                 this.docResults = response.hits.hits;
             }, error => {
@@ -139,7 +172,8 @@ export class AppComponent implements OnInit {
     }
     getResultByTopics(topic, text) {
         text = text || "";
-        this.es.getDocumentsByTopic(text,topic)
+        this.selectedFacets.Topics = [topic];
+        this.es.getDocuments(text, this.selectedFacets)
             .then(response => {
                 this.docResults = response.hits.hits;
             }, error => {
@@ -160,15 +194,17 @@ export class AppComponent implements OnInit {
     getUnique(arr) {
         return Array.from(new Set(arr));
     }
-    facetClick(event,facet,facetKey){
-        if ( event.target.checked ) {
+    facetClick(event, facet, facetKey) {
+        if (event.target.checked) {
             this.selectedFacets[facet] = this.selectedFacets[facet] || [];
             this.selectedFacets[facet].push(facetKey);
         } else {
             const facetKeyIndex = this.selectedFacets[facet].findIndex(function (item, i) {
                 return item === facetKey
             });
-            this.selectedFacets[facet].splice(facetKeyIndex,1);
+            this.selectedFacets[facet].splice(facetKeyIndex, 1);
         }
+        this.getNetworkWithoutFacetUpdate(this.savedSearchText);
+        this.getResultDocs(this.savedSearchText);
     }
 }

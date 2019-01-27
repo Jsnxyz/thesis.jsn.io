@@ -7,8 +7,8 @@
 <div class="main_wrapper">
     <div class="filter_sections">
         <ng-container *ngFor="let facet of getKeys(facets)">
-            <div *ngIf="facets[facet].length > 0" class="filter_section">
-                <div class="filter_header"><span class="facet_name">{{facet}}</span><span class="icon_wrap"><i class="material-icons">keyboard_arrow_up</i></span></div>
+            <div *ngIf="facets[facet].length > 0 || facet !== 'Topics'" class="filter_section">
+                <div class="filter_header"><span class="facet_name">{{removeUnderscore(facet)}}</span><span class="icon_wrap"><i class="material-icons">keyboard_arrow_up</i></span></div>
                 <div class="filter_checkbox">
                     <ng-container *ngFor="let facet_item of facets[facet]">
                         <input (change)="facetClick($event,facet,facet_item.key)" type="checkbox" [attr.name]="facet_item.key" [attr.value]="facet_item.key">{{facet_item.key}} ({{facet_item.doc_count}})<br>
