@@ -13,9 +13,52 @@ declare var LHS_PUBLIC_DOMAIN: string;
 
 @Injectable()
 export class SearchService {
-    query = {
+    network_query = {
         "size": 0,
         "aggs": {
+            "nodes": {
+                "terms": {
+                    "field": "Topics.keyword",
+                    "size": 200
+                },
+                "aggs": {
+                    "edges": {
+                        "terms": {
+                            "field": "Topics.keyword",
+                            "size": 200
+                        }
+                    }
+                }
+            }
+        }
+    }
+    network_facet_query = {
+        "size": 0,
+        "aggs": {
+            "subject_facet": {
+                "terms": {
+                    "field": "Subjects.keyword",
+                    "size": 5
+                }
+            },
+            "contributors_facet": {
+                "terms": {
+                    "field": "Contributors.keyword",
+                    "size": 5
+                }
+            },
+            "publication_year_facet": {
+                "terms": {
+                    "field": "Publication Year.keyword",
+                    "size": 5
+                }
+            },
+            "publisher_facet": {
+                "terms": {
+                    "field": "Publisher Name.keyword",
+                    "size": 5
+                }
+            },
             "nodes": {
                 "terms": {
                     "field": "Topics.keyword",
@@ -95,48 +138,46 @@ export class SearchService {
         return this.client.search({
             index: "bib-index",
             type: "bib-type",
-            body: this.query
+            body: this.network_facet_query
         });
     }
+
+    getDocsQuery(text){
+        return {
+            "query": {
+                "bool": {
+                    "must": [
+                        {
+                            "multi_match": {
+                                "query": text,
+                                "fields": [
+                                    "Creator^2",
+                                    "Title^4",
+                                    "Description",
+                                    "ISBN",
+                                    "ISSN",
+                                    "Publisher^2",
+                                    "Serial Title",
+                                    "Series^3",
+                                    "Subjects^2"
+                                ],
+                                "type": "phrase"
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    }
+
     searchGraph(text) {
+        let query = this.getDocsQuery(text);
+        query["size"] = 0;
+        query["aggs"] = this.network_facet_query.aggs;
         return this.client.search({
             index: "bib-index",
             type: "bib-type",
-            body: {
-                "size": 0,
-                "query": {
-                    "bool": {
-                        "should": [
-                            {
-                                "multi_match": {
-                                    "query": text,
-                                    "fields": [
-                                        "Main Title",
-                                        "Title"
-                                    ],
-                                    "type": "phrase"
-                                }
-                            }
-                        ]
-                    }
-                },
-                "aggs": {
-                    "nodes": {
-                        "terms": {
-                            "field": "Topics.keyword",
-                            "size": 200
-                        },
-                        "aggs": {
-                            "edges": {
-                                "terms": {
-                                    "field": "Topics.keyword",
-                                    "size": 200
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            body: query
         });
     }
     getDocuments(text) {
@@ -144,35 +185,11 @@ export class SearchService {
             index: "bib-index",
             type: "bib-type",
             _source: "Uniform Title,Main Title,Contributors,Description,Subjects,Topics",
-            body: {
-                "query": {
-                    "bool": {
-                        "should": [
-                            {
-                                "multi_match": {
-                                    "query": text,
-                                    "fields": [
-                                        "Creator^2",
-                                        "Title^4",
-                                        "Description",
-                                        "ISBN",
-                                        "ISSN",
-                                        "Publisher^2",
-                                        "Serial Title",
-                                        "Series^3",
-                                        "Subjects^2"
-                                    ],
-                                    "type": "phrase"
-                                }
-                            }
-                        ]
-                    }
-                }
-            }
+            body: this.getDocsQuery(text)
         });
     }
-    getDocumentsByTopic(topic, text: string = "") {
-        let query:any = {
+    getDocumentsByTopic(text: string = "", topic, facets = {} ) {
+        let query: any = {
             "query": {
                 "bool": {
                     "must": [

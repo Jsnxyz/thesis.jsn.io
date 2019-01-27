@@ -3,20 +3,31 @@ import APP_CONFIG from './app.config';
 import { Node, Link } from './d3';
 import { Client } from 'elasticsearch-browser';
 import { SearchService } from './search.service';
+
+interface Facets {
+    subjects?: any;
+    year?: any;
+    publisher?: any;
+    contributors?: any;
+}
 @Component({
     selector: 'app-root',
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.css']
 })
-
 export class AppComponent implements OnInit {
     nodes: Node[] = [];
     links: Link[] = [];
     realLinks: Link[] = [];
     client: Client;
     graphResults: any = [];
-    docResults:any = [];
-    searchBoxText:string = "";
+    docResults: any = [];
+    searchBoxText: string = "";
+    facets: Facets = {};
+    selectedFacets:Facets = {};
+    getKeys(object: {}) {
+        return Object.keys(object);
+    }
     constructor(private es: SearchService) {
     }
     ngOnInit() {
@@ -26,19 +37,21 @@ export class AppComponent implements OnInit {
                     getIndex = number => number - 1;
                 let nodes: Node[] = [];
                 this.graphResults = response.aggregations.nodes.buckets;
+                this.loadFacets(response.aggregations);
+                let max = 0;
+                this.graphResults.forEach(element => {
+                    if (element.doc_count > max) {
+                        max = element.doc_count;
+                    }
+                });
                 for (let node of this.graphResults) {
-                    nodes.push(new Node(node.key));
+                    nodes.push(new Node(node.key, max));
                 }
                 let nodeIter = 0;
                 for (let node of this.graphResults) {
                     for (let edge of node.edges.buckets) {
                         if (edge.key !== node.key) {
-                            nodes[nodeIter].linkCount++;
-                            let edgeIndex = nodes.findIndex(function (item, i) {
-                                return item.id === edge.key
-                            });
-                            nodes[edgeIndex].linkCount++;
-                            // links.push(new Link(node.key,edge.key));
+                            nodes[nodeIter].linkCount = node.doc_count;
                         }
                     }
                     nodeIter++;
@@ -53,6 +66,13 @@ export class AppComponent implements OnInit {
 
 
     }
+    loadFacets(aggs) {
+        this.facets.contributors = aggs.contributors_facet ? aggs.contributors_facet.buckets : [];
+        this.facets.publisher = aggs.publisher_facet ? aggs.publisher_facet.buckets : [];
+        this.facets.year = aggs.publication_year_facet ? aggs.publication_year_facet.buckets : [];
+        this.facets.subjects = aggs.subject_facet ? aggs.subject_facet.buckets : [];
+    }
+
     openLinks(key) {
         let nodeIndex = this.graphResults.findIndex(function (item, i) {
             return item.key === key
@@ -65,10 +85,10 @@ export class AppComponent implements OnInit {
             }
         }
         this.links = links;
-        this.getResultByTopics(key,this.searchBoxText);
+        this.getResultByTopics(key, this.searchBoxText);
     }
     //getNetwork
-    getGraphAndDocs(text){
+    getGraphAndDocs(text) {
         this.getNetwork(text);
         this.getResultDocs(text);
     }
@@ -80,19 +100,21 @@ export class AppComponent implements OnInit {
                     getIndex = number => number - 1;
                 let nodes: Node[] = [];
                 this.graphResults = response.aggregations.nodes.buckets;
+                this.loadFacets(response.aggregations);
+                let max = 0;
+                this.graphResults.forEach(element => {
+                    if (element.doc_count > max) {
+                        max = element.doc_count;
+                    }
+                });
                 for (let node of this.graphResults) {
-                    nodes.push(new Node(node.key));
+                    nodes.push(new Node(node.key, max));
                 }
                 let nodeIter = 0;
                 for (let node of this.graphResults) {
                     for (let edge of node.edges.buckets) {
                         if (edge.key !== node.key) {
-                            nodes[nodeIter].linkCount++;
-                            let edgeIndex = nodes.findIndex(function (item, i) {
-                                return item.id === edge.key
-                            });
-                            nodes[edgeIndex].linkCount++;
-                            // links.push(new Link(node.key,edge.key));
+                            nodes[nodeIter].linkCount = node.doc_count;
                         }
                     }
                     nodeIter++;
@@ -105,7 +127,7 @@ export class AppComponent implements OnInit {
             });
     }
     //get facets and hits. 
-    getResultDocs(text){
+    getResultDocs(text) {
         this.es.getDocuments(text)
             .then(response => {
                 this.docResults = response.hits.hits;
@@ -115,9 +137,9 @@ export class AppComponent implements OnInit {
                 console.log('Search Completed!');
             });
     }
-    getResultByTopics(topic,text){
+    getResultByTopics(topic, text) {
         text = text || "";
-        this.es.getDocumentsByTopic(topic,text)
+        this.es.getDocumentsByTopic(text,topic)
             .then(response => {
                 this.docResults = response.hits.hits;
             }, error => {
@@ -126,16 +148,27 @@ export class AppComponent implements OnInit {
                 console.log('Search Completed!');
             });
     }
-    limitText(text:any){
+    limitText(text: any) {
         text = text.toString();
-        if(text.length > 150){
-            text = text.toString().substr(0,150) + " ..";
+        if (text.length > 150) {
+            text = text.toString().substr(0, 150) + " ..";
         } else {
-            text = text.toString().substr(0,150)
+            text = text.toString().substr(0, 150)
         }
         return text;
     }
-    getUnique(arr){
+    getUnique(arr) {
         return Array.from(new Set(arr));
+    }
+    facetClick(event,facet,facetKey){
+        if ( event.target.checked ) {
+            this.selectedFacets[facet] = this.selectedFacets[facet] || [];
+            this.selectedFacets[facet].push(facetKey);
+        } else {
+            const facetKeyIndex = this.selectedFacets[facet].findIndex(function (item, i) {
+                return item === facetKey
+            });
+            this.selectedFacets[facet].splice(facetKeyIndex,1);
+        }
     }
 }

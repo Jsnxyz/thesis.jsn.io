@@ -12,13 +12,14 @@ export class Node implements d3.SimulationNodeDatum {
 
   id: string;
   linkCount: number = 0;
-
-  constructor(id) {
+  maxDocCount: number;
+  constructor(id,maxDocCount) {
     this.id = id;
+    this.maxDocCount = maxDocCount;
   }
 
   normal = () => {
-    return Math.sqrt(this.linkCount / APP_CONFIG.N);
+    return Math.sqrt(this.linkCount / (this.maxDocCount + 100));
   }
 
   get r() {
@@ -26,7 +27,7 @@ export class Node implements d3.SimulationNodeDatum {
   }
 
   get fontSize() {
-    return (10 * this.normal() + 5) + 'px';
+    return 15 + 'px';
   }
 
   get color() {

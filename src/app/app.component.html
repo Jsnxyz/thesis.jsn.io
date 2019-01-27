@@ -1,33 +1,22 @@
 <div class="header">Header</div>
 <div class="text_search_row">
     <input type="text" class="search_box" [(ngModel)]="searchBoxText" placeholder="Enter your query" #search />
-    <button class="search_button" (click)="getGraphAndDocs(searchBoxText)" >Search</button>
+    <button class="search_button" (click)="getGraphAndDocs(searchBoxText)">Search</button>
 </div>
 
 <div class="main_wrapper">
     <div class="filter_sections">
-        <div class="filter_section">
-            <div class="filter_header"><span>Subject</span><span class="icon_wrap"><i class="material-icons">keyboard_arrow_up</i></span></div>
-            <div class="filter_checkbox">
-                <input type="checkbox" name="vehicle1" value="Bike"> World War (72)<br>
-                  <input type="checkbox" name="vehicle2" value="Car"> Women (20)<br>
-                  <input type="checkbox" name="vehicle3" value="Boat" checked> Religion (19)
+        <ng-container *ngFor="let facet of getKeys(facets)">
+            <div *ngIf="facets[facet].length > 0" class="filter_section">
+                <div class="filter_header"><span class="facet_name">{{facet}}</span><span class="icon_wrap"><i class="material-icons">keyboard_arrow_up</i></span></div>
+                <div class="filter_checkbox">
+                    <ng-container *ngFor="let facet_item of facets[facet]">
+                        <input (change)="facetClick($event,facet,facet_item.key)" type="checkbox" [attr.name]="facet_item.key" [attr.value]="facet_item.key">{{facet_item.key}} ({{facet_item.doc_count}})<br>
+                    </ng-container>
+
+                </div>
             </div>
-        </div>
-        <div class="filter_section">
-            <div class="filter_header"><span>Author</span><span class="icon_wrap"><i class="material-icons">keyboard_arrow_up</i></span></div>
-            <div class="filter_checkbox">
-                <input type="checkbox" name="vehicle1" value="Bike"> JK Rowling (72)<br>
-                  <input type="checkbox" name="vehicle2" value="Car"> Karl Marx (20)<br>
-                  <input type="checkbox" name="vehicle3" value="Boat" checked> Religion (19)
-            </div>
-        </div>
-        <div class="filter_section">
-            <div class="filter_header"><span>Publication Place</span><span class="icon_wrap"><i class="material-icons">keyboard_arrow_down</i></span></div>
-        </div>
-        <div class="filter_section">
-            <div class="filter_header"><span>Publication Year</span><span class="icon_wrap"><i class="material-icons">keyboard_arrow_down</i></span></div>
-        </div>
+        </ng-container>
     </div>
     <div class="explore_section">
         <ng-container *ngIf="nodes.length > 0">
@@ -40,7 +29,10 @@
             <div *ngIf="doc._source['Description']" class="result_description">
                 <div class="result_clamp" [innerHtml]="limitText(doc._source['Description'])"></div>
             </div>
-            <div *ngIf="doc._source['Subjects']"  class="result_year">
+            <div *ngIf="doc._source['Contributors']" class="result_year result_contributors">
+                <a class="result_links" *ngFor="let name of doc._source['Contributors']" [innerHtml]="name"></a>
+            </div>
+            <div *ngIf="doc._source['Subjects']" class="result_year">
                 <div class="result_subject">
                     <a class="result_links" *ngFor="let subject of getUnique(doc._source['Subjects'])" [innerHtml]="subject"></a>
                 </div>
