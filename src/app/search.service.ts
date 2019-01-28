@@ -229,7 +229,7 @@ export class SearchService {
     removeUnderscore(text){
         return text.replace("_"," ");
     }
-    getDocuments(text,facets?:any) {
+    getDocuments(text,facets?:any,pageNo = 1) {
         let query;
         if(text){
             query = this.getDocsQuery(text);
@@ -245,6 +245,7 @@ export class SearchService {
             index: "bib-index",
             type: "bib-type",
             _source: "Uniform Title,Main Title,Contributors,Description,Subjects,Topics",
+            from: (pageNo - 1) * 10,
             body: query
         });
     }
@@ -287,6 +288,13 @@ export class SearchService {
             type: "bib-type",
             _source: "Uniform Title,Main Title,Contributors,Description,Subjects,Topics",
             body: query
+        });
+    }
+    getDocument(id){
+        return this.client.get({
+            index: "bib-index",
+            type: "bib-type",
+            id: id
         });
     }
 }

@@ -3,6 +3,8 @@ import APP_CONFIG from './app.config';
 import { Node, Link } from './d3';
 import { Client } from 'elasticsearch-browser';
 import { SearchService } from './search.service';
+import {NgxPaginationModule} from 'ngx-pagination';
+
 
 interface Facets {
     Subjects?: any;
@@ -27,6 +29,11 @@ export class AppComponent implements OnInit {
     savedSearchText: string = "";
     facets: Facets = {};
     selectedFacets: Facets = {};
+    totalDocs = 0;
+    currentPage = 1;
+
+    resultPageToggle = false;
+    openedDoc:any;
     getKeys(object: {}) {
         return Object.keys(object);
     }
@@ -164,10 +171,11 @@ export class AppComponent implements OnInit {
         this.nodes = nodes;
     }
     //get facets and hits. 
-    getResultDocs(text) {
-        this.es.getDocuments(text, this.selectedFacets)
+    getResultDocs(text,pageNo = 1) {
+        this.es.getDocuments(text, this.selectedFacets,pageNo)
             .then(response => {
                 this.docResults = response.hits.hits;
+                this.totalDocs = response.hits.total;
             }, error => {
                 console.error(error);
             }).then(() => {
@@ -180,6 +188,7 @@ export class AppComponent implements OnInit {
         this.es.getDocuments(text, this.selectedFacets)
             .then(response => {
                 this.docResults = response.hits.hits;
+                this.totalDocs = response.hits.total;
             }, error => {
                 console.error(error);
             }).then(() => {
@@ -210,5 +219,20 @@ export class AppComponent implements OnInit {
         }
         this.getNetworkWithoutFacetUpdate(this.savedSearchText);
         this.getResultDocs(this.savedSearchText);
+    }
+    paginateClick(pageNo){
+        this.currentPage = pageNo;
+        this.getResultDocs(this.savedSearchText,pageNo);
+    }
+    openDoc(id){
+        this.es.getDocument(id)
+            .then(response => {
+                this.openedDoc = response._source;
+                this.resultPageToggle = true;
+            }, error => {
+                console.error(error);
+            }).then(() => {
+                console.log('Search Completed!');
+            });
     }
 }

@@ -8,10 +8,12 @@
     <div class="filter_sections">
         <ng-container *ngFor="let facet of getKeys(facets)">
             <div *ngIf="facets[facet].length > 0 || facet !== 'Topics'" class="filter_section">
-                <div class="filter_header"><span class="facet_name">{{removeUnderscore(facet)}}</span><span class="icon_wrap"><i class="material-icons">keyboard_arrow_up</i></span></div>
+                <div class="filter_header"><span class="facet_name">{{removeUnderscore(facet)}}</span><span class="icon_wrap"><i
+                            class="material-icons">keyboard_arrow_up</i></span></div>
                 <div class="filter_checkbox">
                     <ng-container *ngFor="let facet_item of facets[facet]">
-                        <input (change)="facetClick($event,facet,facet_item.key)" type="checkbox" [attr.name]="facet_item.key" [attr.value]="facet_item.key">{{facet_item.key}} ({{facet_item.doc_count}})<br>
+                        <input (change)="facetClick($event,facet,facet_item.key)" type="checkbox" [attr.name]="facet_item.key"
+                            [attr.value]="facet_item.key">{{facet_item.key}} ({{facet_item.doc_count | thousandSuff }})<br>
                     </ng-container>
 
                 </div>
@@ -24,22 +26,33 @@
         </ng-container>
     </div>
     <div class="results_section">
-        <div class="result" *ngFor="let doc of docResults">
-            <div class="result_title" [innerHtml]="doc._source['Uniform Title'] || doc._source['Main Title']"></div>
-            <div *ngIf="doc._source['Description']" class="result_description">
-                <div class="result_clamp" [innerHtml]="limitText(doc._source['Description'])"></div>
-            </div>
-            <div *ngIf="doc._source['Contributors']" class="result_year result_contributors">
-                <a class="result_links" *ngFor="let name of doc._source['Contributors']" [innerHtml]="name"></a>
-            </div>
-            <div *ngIf="doc._source['Subjects']" class="result_year">
-                <div class="result_subject">
-                    <a class="result_links" *ngFor="let subject of getUnique(doc._source['Subjects'])" [innerHtml]="subject"></a>
+        <div [class.docOpened]="resultPageToggle" class="result_page">
+            <div class="results_section_wrapper">
+                <div class="results_section_inner_wrapper">
+                    <div class="result" *ngFor="let doc of docResults | paginate: { itemsPerPage: 10, currentPage: currentPage, totalItems: totalDocs }">
+                        <div class="result_title" (click)="openDoc(doc._id)" [innerHtml]="doc._source['Uniform Title'] || doc._source['Main Title']"></div>
+                        <div *ngIf="doc._source['Description']" class="result_description">
+                            <div class="result_clamp" [innerHtml]="limitText(doc._source['Description'])"></div>
+                        </div>
+                        <div *ngIf="doc._source['Contributors']" class="result_year result_contributors">
+                            <a class="result_links" *ngFor="let name of doc._source['Contributors']" [innerHtml]="name"></a>
+                        </div>
+                        <div *ngIf="doc._source['Subjects']" class="result_year">
+                            <div class="result_subject">
+                                <a class="result_links" *ngFor="let subject of getUnique(doc._source['Subjects'])"
+                                    [innerHtml]="subject"></a>
+                            </div>
+                        </div>
+                        <div *ngIf="doc._source['Topics']" class="result_year result_topic">
+                            <a class="result_links" *ngFor="let topic of doc._source['Topics']" [innerHtml]="topic"></a>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div *ngIf="doc._source['Topics']" class="result_year result_topic">
-                <a class="result_links" *ngFor="let topic of doc._source['Topics']" [innerHtml]="topic"></a>
-            </div>
+            <pagination-controls class="results-pagination" *ngIf="totalDocs > 10" maxSize="5" (pageChange)="paginateClick($event)"></pagination-controls>
+        </div>
+        <div [class.docOpened]="resultPageToggle" class="doc_page">
+            <app-doc-page *ngIf="openedDoc" [doc]="openedDoc"></app-doc-page>
         </div>
     </div>
 </div>

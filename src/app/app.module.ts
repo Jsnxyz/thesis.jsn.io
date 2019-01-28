@@ -9,18 +9,23 @@ import { AppComponent } from './app.component';
 
 import { GraphComponent } from './visuals/graph/graph.component';
 import { SHARED_VISUALS } from './visuals/shared';
-
+import {NgxPaginationModule} from 'ngx-pagination';
+import  { ThousandSuffixesPipe }  from './pipes/thousand-suffixes.pipe';
+import { DocPageComponent } from './visuals/shared/doc-page/doc-page.component';
 @NgModule({
   declarations: [
     AppComponent,
     GraphComponent,
     ...SHARED_VISUALS,
-    ...D3_DIRECTIVES
+    ...D3_DIRECTIVES,
+    ThousandSuffixesPipe,
+    DocPageComponent
   ],
   imports: [
     BrowserModule,
     FormsModule,
-    HttpModule
+    HttpModule,
+    NgxPaginationModule
   ],
   providers: [D3Service, SearchService],
   bootstrap: [AppComponent]
