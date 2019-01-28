@@ -83,18 +83,20 @@ export class AppComponent implements OnInit {
             return item.key === key
         });
         let links: Link[] = [];
-
-        for (let edge of this.graphResults[nodeIndex].edges.buckets) {
-            if (edge.key !== key) {
-                links.push(new Link(key, edge.key));
+        if(this.graphResults[nodeIndex]){
+            for (let edge of this.graphResults[nodeIndex].edges.buckets) {
+                if (edge.key !== key) {
+                    links.push(new Link(key, edge.key));
+                }
             }
+            this.links = links;
+            this.getResultByTopics(key, this.searchBoxText);
         }
-        this.links = links;
-        this.getResultByTopics(key, this.searchBoxText);
     }
     //getNetwork
     getGraphAndDocs(text) {
         this.savedSearchText = text;
+        this.selectedFacets = {};
         this.getNetwork(text);
         this.getResultDocs(text);
     }
@@ -110,7 +112,13 @@ export class AppComponent implements OnInit {
             });
     }
     getNetworkWithoutFacetUpdate(text){
-        this.es.getGraphNoFacetUpdate(text, this.selectedFacets)
+        let facets = this.selectedFacets;
+        let topicName:string;
+        if(this.selectedFacets.Topics[0]){
+            topicName = this.selectedFacets.Topics[0];
+        }
+        facets.Topics = [];
+        this.es.getGraphNoFacetUpdate(text, facets)
             .then(response => {
                 this.links = [];
                 this.graphUpdate(response,false);
@@ -118,9 +126,12 @@ export class AppComponent implements OnInit {
                 console.error(error);
             }).then(() => {
                 console.log('Search Completed!');
-                if(this.selectedFacets.Topics.length === 1){
-                    this.openLinks(this.selectedFacets.Topics[0]);
-                }
+                setTimeout(() => {
+                    if(topicName){
+                        this.openLinks(topicName);
+                    }
+                },1000)
+                
             });
         
     }
@@ -150,14 +161,7 @@ export class AppComponent implements OnInit {
             }
             nodeIter++;
         }
-        for(let node of nodes){
-            const nodeIndex = this.nodes.findIndex(function (item, i) {
-                return item.id === node.id
-            });
-            this.nodes[nodeIndex] = node;
-        }
-        this.nodes.filter(value => -1 !== nodes.indexOf(value));
-        // this.nodes = nodes;
+        this.nodes = nodes;
     }
     //get facets and hits. 
     getResultDocs(text) {

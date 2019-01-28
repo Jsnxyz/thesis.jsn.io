@@ -38,19 +38,19 @@ export class ForceDirectedGraph {
         this.initLinks();
     }
 
-    initNodes() {
+    initNodes(nodes?) {
         if (!this.simulation) {
             throw new Error('simulation was not initialized yet');
         }
-
+        this.nodes = nodes || this.nodes;
         this.simulation.nodes(this.nodes);
     }
 
-    initLinks() {
+    initLinks(links?) {
         if (!this.simulation) {
             throw new Error('simulation was not initialized yet');
         }
-
+        this.links = links || this.links;
         this.simulation.force('links',
             d3.forceLink(this.links)
                 .id(d => d['id'])

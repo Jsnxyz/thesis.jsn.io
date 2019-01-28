@@ -171,6 +171,7 @@ export class SearchService {
                 "type": "phrase"
             }
         });
+        return query;
     }
 
     searchGraph(text,facets?:any) {
@@ -186,6 +187,7 @@ export class SearchService {
         for(let facet of facet_query){
             query["query"]["bool"]["must"].push(facet);
         }
+        console.log(JSON.stringify(query));
         return this.client.search({
             index: "bib-index",
             type: "bib-type",
@@ -201,6 +203,11 @@ export class SearchService {
         }
         query["size"] = 0;
         query["aggs"] = this.network_query.aggs;
+        let facet_query = this.loadFacetsToQuery(facets);
+        for(let facet of facet_query){
+            query["query"]["bool"]["must"].push(facet);
+        }
+        console.log(JSON.stringify(query));
         return this.client.search({
             index: "bib-index",
             type: "bib-type",
@@ -233,6 +240,7 @@ export class SearchService {
         for(let facet of facet_query){
             query["query"]["bool"]["must"].push(facet);
         }
+        console.log(JSON.stringify(query));
         return this.client.search({
             index: "bib-index",
             type: "bib-type",

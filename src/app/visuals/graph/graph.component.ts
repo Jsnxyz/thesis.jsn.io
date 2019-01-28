@@ -1,5 +1,6 @@
-import { Component, Input, ChangeDetectorRef, HostListener, ChangeDetectionStrategy, OnInit, EventEmitter, OnChanges, Output } from '@angular/core';
-import { D3Service, ForceDirectedGraph, Node } from '../../d3';
+import { Component, Input, ChangeDetectorRef, HostListener, ChangeDetectionStrategy, OnInit, EventEmitter, OnChanges, Output, ViewChild } from '@angular/core';
+import { D3Service, ForceDirectedGraph, Node, Link } from '../../d3';
+import * as d3 from 'd3';
 
 @Component({
     selector: 'graph',
@@ -7,8 +8,8 @@ import { D3Service, ForceDirectedGraph, Node } from '../../d3';
     template: `
     <svg #svg [attr.width]="_options.width" [attr.height]="_options.height">
       <g [zoomableOf]="svg">
-        <g [linkHover]="link" [linkVisual]="link" *ngFor="let link of links"></g>
-        <g [nodeVisual]="node" (click)=openLinks(node.id) *ngFor="let node of nodes"
+        <g class="svgLinks" [linkHover]="link" [linkVisual]="link" *ngFor="let link of links"></g>
+        <g class="svgNodes" [nodeVisual]="node" (click)="openLinks(node.id, $event)" *ngFor="let node of nodes"
             [draggableNode]="node" [draggableInGraph]="graph"></g>
       </g>
     </svg>
@@ -16,9 +17,10 @@ import { D3Service, ForceDirectedGraph, Node } from '../../d3';
     styleUrls: ['./graph.component.css']
 })
 export class GraphComponent implements OnInit, OnChanges {
-    @Input('nodes') nodes;
-    @Input('links') links;
+    @Input('nodes') nodes:Node[];
+    @Input('links') links:Link[];
     @Output() nodeClicked = new EventEmitter();
+    @ViewChild('svg') svg;
     graph: ForceDirectedGraph;
     _options: { width, height } = { width: 800, height: 600 };
 
@@ -31,6 +33,7 @@ export class GraphComponent implements OnInit, OnChanges {
     constructor(private d3Service: D3Service, private ref: ChangeDetectorRef) { }
 
     ngOnInit() {
+        
     }
     ngOnChanges() {
         if (this.nodes.length > 0) {
@@ -48,7 +51,12 @@ export class GraphComponent implements OnInit, OnChanges {
             height: element.clientHeight
         };
     }
-    openLinks(key){
+    openLinks(key, event){
+        if (event.ctrlKey)
+        {
+            console.log("Ctrl Clicked");
+            return;
+        }
         this.nodeClicked.emit(key);
     }
 
