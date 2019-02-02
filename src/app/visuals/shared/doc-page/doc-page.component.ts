@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { DocPresentationInterface } from '../../../d3/models/doc-presentation';
 @Component({
     selector: 'app-doc-page',
@@ -7,6 +7,7 @@ import { DocPresentationInterface } from '../../../d3/models/doc-presentation';
 })
 export class DocPageComponent implements OnInit {
     @Input() doc;
+    @Output() back = new EventEmitter();
     docformatted = new Map();
     constructor() { }
 
@@ -25,6 +26,10 @@ export class DocPageComponent implements OnInit {
             }
         }
         console.log("docformatted", this.docformatted);
+    }
+    
+    backClicked(){
+        this.back.emit();
     }
 
 }

@@ -56,6 +56,7 @@ text {
     padding:10px;
     border-bottom:solid 1px #00000012;
     text-align: center;
+    display:flex;
 }
 .search_box {
     padding: 5px 10px;
@@ -177,4 +178,28 @@ div .result_links:last-child::after{
 }
 .results_section_inner_wrapper{
     padding-bottom: 57px;
+}
+.search_field_wrap{
+    flex: 1;
+    margin-left: -70px;
+}
+.find_node_wrap{
+    flex: 1;
+}
+.topicListWrapper{
+    background: white;
+    width: 300px;
+    font-size: 14px;
+    max-height: 200px;
+    overflow: auto;
+    border: solid 1px #cecece;
+    position: absolute;
+}
+.searchBoxAndTopicList{
+    display:inline-block;
+}
+.topicsList {
+    padding: 5px 0;
+    border-bottom: solid 1px #cecece;
+    cursor: pointer;
 }

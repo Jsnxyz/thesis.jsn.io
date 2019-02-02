@@ -10,7 +10,8 @@ import { AppComponent } from './app.component';
 import { GraphComponent } from './visuals/graph/graph.component';
 import { SHARED_VISUALS } from './visuals/shared';
 import {NgxPaginationModule} from 'ngx-pagination';
-import  { ThousandSuffixesPipe }  from './pipes/thousand-suffixes.pipe';
+import { ThousandSuffixesPipe }  from './pipes/thousand-suffixes.pipe';
+import { MapValuesPipe } from './pipes/map-values.pipe'
 import { DocPageComponent } from './visuals/shared/doc-page/doc-page.component';
 @NgModule({
   declarations: [
@@ -19,7 +20,8 @@ import { DocPageComponent } from './visuals/shared/doc-page/doc-page.component';
     ...SHARED_VISUALS,
     ...D3_DIRECTIVES,
     ThousandSuffixesPipe,
-    DocPageComponent
+    DocPageComponent,
+    MapValuesPipe
   ],
   imports: [
     BrowserModule,

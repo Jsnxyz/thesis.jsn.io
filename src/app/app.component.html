@@ -1,7 +1,19 @@
-<div class="header">Header</div>
+<div class="header" >
+    <div class="header_main">Header</div>
+    <div class="search_field_wrap">
+        <input type="text" class="search_box" [(ngModel)]="searchBoxText" placeholder="Enter your query" #search />
+        <button class="search_button" (click)="getGraphAndDocs(searchBoxText)">Search</button>
+    </div>
+</div>
 <div class="text_search_row">
-    <input type="text" class="search_box" [(ngModel)]="searchBoxText" placeholder="Enter your query" #search />
-    <button class="search_button" (click)="getGraphAndDocs(searchBoxText)">Search</button>
+    <div class="find_node_wrap">
+        <div class="searchBoxAndTopicList">
+            <input type="text" (focus)="toggleTopicList()" (blur)="delayToggleTopicList()" class="search_box" [(ngModel)]="topicNodeInput" placeholder="Enter topic node to center" />
+            <div *ngIf="showTopicList" class="topicListWrapper">
+                <div class="topicsList" *ngFor="let topic of filterByTopicInput()" (click)="centerTopic(topic); toggleTopicList();" [innerHtml]="topic"></div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="main_wrapper">
@@ -52,7 +64,7 @@
             <pagination-controls class="results-pagination" *ngIf="totalDocs > 10" maxSize="5" (pageChange)="paginateClick($event)"></pagination-controls>
         </div>
         <div [class.docOpened]="resultPageToggle" class="doc_page">
-            <app-doc-page *ngIf="openedDoc" [doc]="openedDoc"></app-doc-page>
+            <app-doc-page *ngIf="openedDoc" (back)="goBackToDocs()" [doc]="openedDoc"></app-doc-page>
         </div>
     </div>
 </div>

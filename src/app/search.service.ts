@@ -84,7 +84,7 @@ export class SearchService {
     }
 
     private connect() {
-        let host = `http://35.204.165.225:9200`;
+        let host = `35.204.187.220:9200`;
 
         this.client = new Client({
             host,

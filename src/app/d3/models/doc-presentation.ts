@@ -1,9 +1,7 @@
 const MainDetailsInterface = [
     {"Title" : ""},
     {"Uniform Title" : ""}, 
-    {"Creator" : ""}, 
     {"Name" : ""}, 
-    {"Contributors" : ""}, 
     {"Description" : ""}, 
     {"Language" : ""}, 
     {"Series" : ""}, 
@@ -72,11 +70,11 @@ const UncategorizedMetadataInterface = [
     {"Uncategorized Metadata" : ""}
 ]
 export const DocPresentationInterface = [
-    {"Main_Details" : MainDetailsInterface},
-    {"Publication_Details": PublicationDetailsInterface},
-    {"Identifiers_and_Numbers": IdentifiersNumbersDetailsInterface},
-    {"Resource_Details": ResourceDetailsInterface},
+    {"Main Details" : MainDetailsInterface},
+    {"Publication Details": PublicationDetailsInterface},
+    {"Identifiers and Numbers": IdentifiersNumbersDetailsInterface},
+    {"Resource Details": ResourceDetailsInterface},
     {"Notes":NotesInterface},
-    {"Topical_Subjects": TopicalSubjectsInterface},
-    {"Uncategorized_Metadata": UncategorizedMetadataInterface}
+    {"Topical Subjects": TopicalSubjectsInterface},
+    {"Uncategorized Metadata": UncategorizedMetadataInterface}
 ]

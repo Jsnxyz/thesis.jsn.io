@@ -6,8 +6,8 @@ import * as d3 from 'd3';
     selector: 'graph',
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
-    <svg #svg [attr.width]="_options.width" [attr.height]="_options.height">
-      <g [zoomableOf]="svg">
+    <svg #svg class="mainGraphSvg" [attr.width]="_options.width" [attr.height]="_options.height">
+      <g class="mainGraphContainer" [zoomableOf]="svg">
         <g class="svgLinks" [linkHover]="link" [linkVisual]="link" *ngFor="let link of links"></g>
         <g class="svgNodes" [nodeVisual]="node" (click)="openLinks(node.id, $event)" *ngFor="let node of nodes"
             [draggableNode]="node" [draggableInGraph]="graph"></g>

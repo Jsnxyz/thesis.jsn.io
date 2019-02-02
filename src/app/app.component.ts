@@ -4,7 +4,8 @@ import { Node, Link } from './d3';
 import { Client } from 'elasticsearch-browser';
 import { SearchService } from './search.service';
 import {NgxPaginationModule} from 'ngx-pagination';
-
+import * as d3 from 'd3';
+import { xml } from 'd3';
 
 interface Facets {
     Subjects?: any;
@@ -34,6 +35,11 @@ export class AppComponent implements OnInit {
 
     resultPageToggle = false;
     openedDoc:any;
+
+    topicNodeInput:string;
+    topicList: string[] = [];
+    showTopicList = false;
+    centerNode = "";
     getKeys(object: {}) {
         return Object.keys(object);
     }
@@ -55,6 +61,7 @@ export class AppComponent implements OnInit {
                 });
                 for (let node of this.graphResults) {
                     nodes.push(new Node(node.key, max));
+                    this.topicList.push(node.key);
                 }
                 let nodeIter = 0;
                 for (let node of this.graphResults) {
@@ -156,8 +163,10 @@ export class AppComponent implements OnInit {
                 max = element.doc_count;
             }
         });
+        this.topicList = [];
         for (let node of this.graphResults) {
             nodes.push(new Node(node.key, max));
+            this.topicList.push(node.key);
         }
         let nodeIter = 0;
         for (let node of this.graphResults) {
@@ -234,5 +243,58 @@ export class AppComponent implements OnInit {
             }).then(() => {
                 console.log('Search Completed!');
             });
+    }
+    goBackToDocs(){
+        this.resultPageToggle = false;
+    }
+    filterByTopicInput(){
+        if(this.topicNodeInput){
+            return this.topicList.filter( (item) => {
+                if(item.includes(this.topicNodeInput)){
+                    return true;
+                }
+                return false;
+            })
+        } 
+        return this.topicList;
+    }
+    toggleTopicList(){
+        this.showTopicList = !this.showTopicList;
+    }
+    delayToggleTopicList(){
+        setTimeout(() => {
+            this.showTopicList = false;
+        },100);
+    }
+    centerTopic(topic:string){
+        let nodeIndex = this.graphResults.findIndex(function (item, i) {
+            return item.key === topic
+        });
+        let graphElement = document.querySelector("graph");
+        let graph = d3.select(graphElement);
+        let node = this.nodes[nodeIndex];
+        let svgElement = document.querySelector('.mainGraphSvg');
+        let containerElement = document.querySelector('.mainGraphContainer');
+        
+        let svg = d3.select(svgElement);
+        let container = d3.select(containerElement);
+        
+
+        
+        //container.attr('transform', 'translate(' + x + ',' + y + ') scale(' + t.k  + ')');
+        
+            const t = d3.zoomTransform(graph.node());
+            let x = -Number(node.x);
+            let y = -Number(node.y);
+            x = x * t.k + (svgElement.clientWidth / 2);
+            y = y * t.k + (svgElement.clientHeight / 2);
+            let zoomed = () => {
+                if(d3.event.transform != null) {
+                    container.attr("transform", d3.event.transform );
+                }
+            }
+    
+            let zoom = d3.zoom().on('zoom', zoomed);
+        svg.transition().duration(750).call( zoom.transform, d3.zoomIdentity.translate(x,y).scale(t.k) );
     }
 }

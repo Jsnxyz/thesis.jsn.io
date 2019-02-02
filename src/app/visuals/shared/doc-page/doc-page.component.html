@@ -1,0 +1,7 @@
+<div class="backButton" (click)="backClicked()">Back</div>
+<div class="detailsSection" *ngFor="let details of docformatted | mapValues">
+    <div class="detailsHeader">{{details.key}}</div>
+    <div class="detailSection" *ngFor="let detail of details.val | mapValues">
+        <span class="detailLabel">{{detail.key}}</span><span class="detailValue">{{detail.val}}</span>
+    </div>
+</div>
