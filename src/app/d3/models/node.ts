@@ -9,7 +9,7 @@ export class Node implements d3.SimulationNodeDatum {
   vy?: number;
   fx?: number | null;
   fy?: number | null;
-
+  active = false;
   id: string;
   linkCount: number = 0;
   maxDocCount: number;

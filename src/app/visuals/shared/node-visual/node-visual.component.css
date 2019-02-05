@@ -13,5 +13,9 @@
   text-anchor: middle;
   alignment-baseline: central;
   font-weight: 300;
-  fill: black;
+  fill: rgb(45, 42, 42);
+}
+.node.active {
+    stroke-width: 2;
+    stroke: rgb(87, 92, 89);
 }

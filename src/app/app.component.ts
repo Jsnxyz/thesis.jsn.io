@@ -40,6 +40,9 @@ export class AppComponent implements OnInit {
     topicList: string[] = [];
     showTopicList = false;
     centerNode = "";
+
+    showFilter = false;
+
     getKeys(object: {}) {
         return Object.keys(object);
     }
@@ -97,6 +100,10 @@ export class AppComponent implements OnInit {
             return item.key === key
         });
         let links: Link[] = [];
+        for(let i=0;i<this.nodes.length; i++){
+            this.nodes[i].active = false;
+        }
+        this.nodes[nodeIndex].active = true;
         if(this.graphResults[nodeIndex]){
             for (let edge of this.graphResults[nodeIndex].edges.buckets) {
                 if (edge.key !== key) {

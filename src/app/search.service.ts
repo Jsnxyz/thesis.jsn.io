@@ -168,7 +168,8 @@ export class SearchService {
                     "Series^3",
                     "Subjects^2"
                 ],
-                "type": "phrase"
+                "fuzziness": 1,
+                "prefix_length": 3
             }
         });
         return query;

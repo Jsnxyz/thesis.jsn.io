@@ -13,18 +13,43 @@
     display: flex;
     flex: 1;
     flex-direction: row;
+    position: relative;
 }
 .filter_sections{
     width:225px;
+    display:flex;
+    flex-direction: column;
+    height: 100%;
     border-right: solid 1px #00000012;
+    transform: translateX(-100%);
+    position: absolute;
+    background: #ebebeb;
+    z-index: 1;
+    transition: transform 0.5s;
+}
+.filter_button {
+    position: absolute;
+    left:100%;
+    top: 0;
+    cursor: pointer;
+    padding: 5px;
+    background: #cecece;
+}
+.filter_section_wrapper {
+    width: 100%;
+    height: 100%;
     overflow-y: auto;
+}
+.showFilter{
+    transform: translateX(0%);
 }
 .facet_name{
     text-transform: capitalize;
 }
 .explore_section{
     flex:1;
-    border-right: solid 1px #00000012;;
+    border-right: solid 1px #00000012;
+    position: relative;
 }
 .results_section{
     width: 400px;
@@ -61,9 +86,13 @@ text {
 .search_box {
     padding: 5px 10px;
     width: 300px;
-    border-radius: 5px;
+    border-radius: 2px;
     border: solid 1px #676464;
+    background: #eae7e7;
     text-align: left;
+}
+.search_box:focus {
+    background: white;
 }
 .search_button{
     padding: 5px 10px;
@@ -75,10 +104,10 @@ text {
 .filter_section {
     padding: 10px;
     border-bottom: solid 1px #cecece;
-    font-size:14px;
+    font-size:12px;
 }
 .filter_header {
-    font-size: 16px;
+    font-size: 14px;
     margin: 10px 0px;
 }
 
@@ -173,7 +202,7 @@ div .result_links:last-child::after{
 .results-pagination{
     position: absolute;
     bottom: 0;
-    background: white;
+    background: #ebebeb;
     width: 383px;
 }
 .results_section_inner_wrapper{
@@ -185,10 +214,14 @@ div .result_links:last-child::after{
 }
 .find_node_wrap{
     flex: 1;
+    position: absolute;
+    top: 10px;
+    left: 50px;
+    width: 120px;
 }
 .topicListWrapper{
     background: white;
-    width: 300px;
+    width: 100%;
     font-size: 14px;
     max-height: 200px;
     overflow: auto;
@@ -197,9 +230,14 @@ div .result_links:last-child::after{
 }
 .searchBoxAndTopicList{
     display:inline-block;
+    width: 100%;
+}
+.searchBoxAndTopicList input {
+    width: 100%;
 }
 .topicsList {
-    padding: 5px 0;
+    padding: 5px 0 5px 5px;
     border-bottom: solid 1px #cecece;
     cursor: pointer;
+    font-size:12px;
 }

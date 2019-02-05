@@ -7,6 +7,7 @@ import { Node } from '../../../d3';
     <svg:g [attr.transform]="'translate(' + node.x + ',' + node.y + ')'">
       <svg:circle
           class="node"
+          [class.active]="node.active"
           [attr.fill]="node.color"
           cx="0"
           cy="0"
