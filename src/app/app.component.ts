@@ -43,6 +43,9 @@ export class AppComponent implements OnInit {
 
     showFilter = false;
 
+    showMoreFacets = false;
+    moreFacets: Facets = {};
+    selectedMoreFacets: Facets = {};
     getKeys(object: {}) {
         return Object.keys(object);
     }
@@ -89,10 +92,11 @@ export class AppComponent implements OnInit {
         return text.replace("_", " ");
     }
     loadFacets(aggs) {
-        this.facets.Contributors = aggs.contributors_facet ? aggs.contributors_facet.buckets : [];
-        this.facets.Publisher_Name = aggs.publisher_facet ? aggs.publisher_facet.buckets : [];
-        this.facets.Publication_Year = aggs.publication_year_facet ? aggs.publication_year_facet.buckets : [];
-        this.facets.Subjects = aggs.subject_facet ? aggs.subject_facet.buckets : [];
+        console.log(aggs);
+        this.facets.Contributors = {items : aggs.contributors_facet ? aggs.contributors_facet.buckets : [], count:aggs.contributors_facet.sum_other_doc_count || 0 };
+        this.facets.Publisher_Name = {items: aggs.publisher_facet ? aggs.publisher_facet.buckets : [], count:aggs.publisher_facet.sum_other_doc_count || 0};
+        this.facets.Publication_Year= {items: aggs.publication_year_facet ? aggs.publication_year_facet.buckets : [], count:aggs.publication_year_facet.sum_other_doc_count || 0 };
+        this.facets.Subjects = {items: aggs.subject_facet ? aggs.subject_facet.buckets : [], count:aggs.subject_facet.sum_other_doc_count || 0 };
     }
 
     openLinks(key) {
@@ -133,9 +137,10 @@ export class AppComponent implements OnInit {
             });
     }
     getNetworkWithoutFacetUpdate(text){
-        let facets = this.selectedFacets;
+        let facets = Object.assign({}, this.selectedFacets);
         let topicName:string;
-        if(this.selectedFacets.Topics[0]){
+        console.log(this.selectedFacets);
+        if(this.selectedFacets.Topics && this.selectedFacets.Topics[0]){
             topicName = this.selectedFacets.Topics[0];
         }
         facets.Topics = [];
@@ -236,6 +241,23 @@ export class AppComponent implements OnInit {
         this.getNetworkWithoutFacetUpdate(this.savedSearchText);
         this.getResultDocs(this.savedSearchText);
     }
+    moreFacetClick(event, facet, facetKey){
+        if (event.target.checked) {
+            this.selectedMoreFacets[facet] = this.selectedMoreFacets[facet] || [];
+            this.selectedMoreFacets[facet].push(facetKey);
+        } else {
+            const facetKeyIndex = this.selectedMoreFacets[facet].findIndex(function (item, i) {
+                return item === facetKey
+            });
+            this.selectedMoreFacets[facet].splice(facetKeyIndex, 1);
+        }
+    }
+    addFilters(){
+        this.selectedFacets = Object.assign({},this.selectedMoreFacets);
+        this.getNetworkWithoutFacetUpdate(this.savedSearchText);
+        this.getResultDocs(this.savedSearchText);
+        this.showMoreFacets = false;
+    }
     paginateClick(pageNo){
         this.currentPage = pageNo;
         this.getResultDocs(this.savedSearchText,pageNo);
@@ -303,5 +325,43 @@ export class AppComponent implements OnInit {
     
             let zoom = d3.zoom().on('zoom', zoomed);
         svg.transition().duration(750).call( zoom.transform, d3.zoomIdentity.translate(x,y).scale(t.k) );
+    }
+    getMoreFacetItems(facet) {
+        this.selectedMoreFacets = Object.assign({}, this.selectedFacets);
+        this.es.getMoreFacets(this.savedSearchText, this.removeUnderscore(facet))
+        .then(response => {
+            this.moreFacets = {};
+            const aggs = response.aggregations;
+            this.moreFacets[facet] = {items : aggs.facets ? aggs.facets.buckets : [], count:aggs.facets.sum_other_doc_count || 0 };
+        }, error => {
+            console.error(error);
+        }).then(() => {
+            this.showMoreFacets = true;
+        });
+
+    }
+    isChecked(facet,facetKey){
+        if(this.selectedFacets[facet]){
+            if(this.selectedFacets[facet].indexOf(facetKey) > -1) {
+                return true;
+            }
+        }
+        return false;
+    }
+    openSelectedFilterDropDown(item) {
+        let element = document.querySelector('.selectItems.sB' + item);
+        if(element.classList.contains('show')){
+            element.classList.remove('show'); 
+        } else {
+            element.classList.add('show'); 
+        }
+    }
+    removeFilter(facet, facetValue){
+        const facetKeyIndex = this.selectedFacets[facet].findIndex(function (item, i) {
+            return item === facetValue
+        });
+        this.selectedFacets[facet].splice(facetKeyIndex, 1);
+        this.getNetworkWithoutFacetUpdate(this.savedSearchText);
+        this.getResultDocs(this.savedSearchText);
     }
 }

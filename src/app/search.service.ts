@@ -32,6 +32,16 @@ export class SearchService {
             }
         }
     }
+    more_facet_query = {
+        "size" : 0,
+        "aggs" : {
+            "facets": {
+                "terms" : {
+                    "size" : 50
+                }
+            }
+        }
+    }
     network_facet_query = {
         "size": 0,
         "aggs": {
@@ -84,7 +94,7 @@ export class SearchService {
     }
 
     private connect() {
-        let host = `35.204.187.220:9200`;
+        let host = `35.204.183.75:9200`;
 
         this.client = new Client({
             host,
@@ -174,7 +184,21 @@ export class SearchService {
         });
         return query;
     }
-
+    getMoreFacets(text,facetName) {
+        let query = {};
+        if(text){
+            query = this.getDocsQuery(text);
+        }
+        query["size"] = 0;
+        query["aggs"] = this.more_facet_query.aggs;
+        query["aggs"]["facets"]["terms"]["field"] = facetName + ".keyword";
+        console.log(query);
+        return this.client.search({
+            index: "bib-index",
+            type: "bib-type",
+            body: query
+        });
+    }
     searchGraph(text,facets?:any) {
         let query;
         if(text){

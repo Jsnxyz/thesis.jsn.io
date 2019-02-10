@@ -6,7 +6,31 @@
     </div>
 </div>
 <div class="text_search_row">
-    Selected filters : None
+    <div class="filterRowText">Selected filters</div>
+    <ng-container *ngFor="let item of getKeys(selectedFacets)">
+        <ng-container *ngIf="selectedFacets[item].length > 0">
+            <div class="selectBox sB{{item}}" (click)="openSelectedFilterDropDown(item)">
+                <div class="selectName">
+                    {{removeUnderscore(item)}}
+                    <i class="material-icons">
+                        keyboard_arrow_down
+                    </i>
+                </div>
+                <div class="selectItems sB{{item}}" (click)="$event.stopPropagation()">
+                    <ng-container *ngFor="let value of selectedFacets[item]">
+                        <div class="selectItem">
+                            <div class="itemText">
+                                {{value}}
+                            </div>
+                            <div class="itemRemove" (click)="removeFilter(item,value)">
+                                <i class="material-icons">close</i>
+                            </div>
+                        </div>
+                    </ng-container>
+                </div>
+            </div>
+        </ng-container>
+    </ng-container>
 </div>
 
 <div class="main_wrapper">
@@ -14,15 +38,20 @@
         <div class="filter_section_wrapper">
             <ng-container *ngFor="let facet of getKeys(facets)">
                 <div *ngIf="(facets[facet].length > 0 || facet !== 'Topics')" class="filter_section">
-                    <div class="filter_header"><span class="facet_name">{{removeUnderscore(facet)}}</span><span class="icon_wrap"><i
-                                class="material-icons">keyboard_arrow_up</i></span></div>
+                    <div class="filter_header">
+                        <span class="facet_name">{{removeUnderscore(facet)}}</span>
+                    </div>
                     <div class="filter_checkbox">
-                        <ng-container *ngFor="let facet_item of facets[facet]">
+                        <ng-container *ngFor="let facet_item of facets[facet].items">
                             <input (change)="facetClick($event,facet,facet_item.key)" type="checkbox" [attr.name]="facet_item.key"
-                                [attr.value]="facet_item.key">{{facet_item.key}} ({{facet_item.doc_count | thousandSuff
+                                [attr.value]="facet_item.key" [checked]="isChecked(facet,facet_item.key)">{{facet_item.key}} ({{facet_item.doc_count | thousandSuff
                             }})<br>
                         </ng-container>
                     </div>
+                    <div class="moreFacetDiv">
+                        <a class="moreFacetLink" (click)="getMoreFacetItems(facet)" title="Open Top 50 {{removeUnderscore(facet)}}">...more</a>
+                    </div>
+                    
                 </div>
             </ng-container>
         </div>
@@ -85,3 +114,21 @@
     </div>
 </div>
 <div class="tooltip" style="opacity: 0"></div>
+<div class="moreFacetsSection" *ngIf="showMoreFacets" (click)="showMoreFacets = false;">
+    <div class="moreFacetsWrapper" (click)="$event.stopPropagation();">
+        <ng-container *ngFor="let facet of getKeys(moreFacets)">
+            <div class="moreFacetsTitle">{{removeUnderscore(facet)}}</div>
+            <ng-container *ngFor="let facet_item of moreFacets[facet].items">
+                <div class="moreFacetsInput">
+                    <input (change)="moreFacetClick($event,facet,facet_item.key)" type="checkbox" [attr.name]="facet_item.key"
+                        [attr.value]="facet_item.key" [checked]="isChecked(facet,facet_item.key)">{{facet_item.key}} ({{facet_item.doc_count | thousandSuff}})
+                    <br>
+                </div>
+            </ng-container>
+        </ng-container>
+        <div class="moreFacetsActionsRow">
+            <a (click)="addFilters()">Apply Selected Filters</a>
+            <a (click)="showMoreFacets = false;">Close</a>
+        </div>
+    </div>
+</div>
