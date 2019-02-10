@@ -241,6 +241,21 @@ export class AppComponent implements OnInit {
         this.getNetworkWithoutFacetUpdate(this.savedSearchText);
         this.getResultDocs(this.savedSearchText);
     }
+    openDocsBySingleFacet(facet, facetKey) {
+        // Reset searchText, load facets, and change selectedFacet as the given params. And then search. 
+        this.searchBoxText = "";
+        this.savedSearchText = "";
+        this.selectedFacets = {};
+        this.selectedFacets[facet] = [facetKey];
+        this.getNetworkWithoutFacetUpdate(this.savedSearchText);
+        this.getResultDocs(this.savedSearchText);
+    }
+    openConnectingTopics(link){
+        // remove non source topic
+        this.selectedFacets['Topics'].splice(1,this.selectedFacets['Topics'].length - 1);
+        this.selectedFacets['Topics'].push(link.target.id);
+        this.getResultDocs(this.savedSearchText);
+    }
     moreFacetClick(event, facet, facetKey){
         if (event.target.checked) {
             this.selectedMoreFacets[facet] = this.selectedMoreFacets[facet] || [];

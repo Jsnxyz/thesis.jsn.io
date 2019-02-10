@@ -69,11 +69,20 @@ export class D3Service {
                 .style("left", (d3.event.pageX) + "px")
                 .style("top", (d3.event.pageY - 28) + "px");
         }
+        function clicked() {
+            /** Preventing propagation of dragstart to parent elements */
+            let linkElement = document.querySelector('.svgLinks.active');
+            if(linkElement) {
+                linkElement.classList.remove('active');
+            }
+            element.classList.add('active');
+        }
         function blurred(){
             div.transition().duration(0).style("opacity",0);
         }
         d3element.on("mouseover",hovered);
         d3element.on("mouseleave",blurred);
+        d3element.on("click",clicked);
     }
     /** The interactable graph we will simulate in this article
     * This method does not interact with the document, purely physical calculations with d3

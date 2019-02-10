@@ -1,0 +1,4 @@
+
+.svgLinks.active ::ng-deep .link {
+    stroke: #000;
+}

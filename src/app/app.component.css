@@ -322,7 +322,7 @@ div .result_links:last-child::after{
 .selectBox {
     position: relative;
     margin: 0px 10px;
-    padding: 5px 10px 5px 4px;
+    padding: 5px 0px 5px 4px;
     display: inline-block;
     z-index: 2;
     background: #ebebeb;

@@ -8,7 +8,7 @@ import * as d3 from 'd3';
     template: `
     <svg #svg class="mainGraphSvg" [attr.width]="_options.width" [attr.height]="_options.height">
       <g class="mainGraphContainer" [zoomableOf]="svg">
-        <g class="svgLinks" [linkHover]="link" [linkVisual]="link" *ngFor="let link of links"></g>
+        <g class="svgLinks" (click)="openConnectingLink(link)" [linkHover]="link" [linkVisual]="link" *ngFor="let link of links"></g>
         <g class="svgNodes" [nodeVisual]="node" (click)="openLinks(node.id, $event)" *ngFor="let node of nodes"
             [draggableNode]="node" [draggableInGraph]="graph"></g>
       </g>
@@ -20,6 +20,7 @@ export class GraphComponent implements OnInit, OnChanges {
     @Input('nodes') nodes:Node[];
     @Input('links') links:Link[];
     @Output() nodeClicked = new EventEmitter();
+    @Output() linkClicked = new EventEmitter();
     @ViewChild('svg') svg;
     graph: ForceDirectedGraph;
     _options: { width, height } = { width: 800, height: 600 };
@@ -58,6 +59,9 @@ export class GraphComponent implements OnInit, OnChanges {
             return;
         }
         this.nodeClicked.emit(key);
+    }
+    openConnectingLink(link){
+        this.linkClicked.emit(link);
     }
 
 }

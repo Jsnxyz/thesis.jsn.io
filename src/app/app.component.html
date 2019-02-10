@@ -71,7 +71,7 @@
                     </div>
                 </div>
             </div>
-            <graph [nodes]="nodes" [links]="links" (nodeClicked)="openLinks($event)"></graph>
+            <graph [nodes]="nodes" [links]="links" (linkClicked)="openConnectingTopics($event)" (nodeClicked)="openLinks($event)"></graph>
         </ng-container>
     </div>
     <div class="results_section">
@@ -84,16 +84,16 @@
                             <div class="result_clamp" [innerHtml]="limitText(doc._source['Description'])"></div>
                         </div>
                         <div *ngIf="doc._source['Contributors']" class="result_year result_contributors">
-                            <a class="result_links" *ngFor="let name of doc._source['Contributors']" [innerHtml]="name"></a>
+                            <a class="result_links" *ngFor="let name of doc._source['Contributors']" (click)="openDocsBySingleFacet('Contributors',name)" [innerHtml]="name"></a>
                         </div>
                         <div *ngIf="doc._source['Subjects']" class="result_year">
                             <div class="result_subject">
                                 <a class="result_links" *ngFor="let subject of getUnique(doc._source['Subjects'])"
-                                    [innerHtml]="subject"></a>
+                                (click)="openDocsBySingleFacet('Subjects',subject)" [innerHtml]="subject"></a>
                             </div>
                         </div>
                         <div *ngIf="doc._source['Topics']" class="result_year result_topic">
-                            <a class="result_links" *ngFor="let topic of doc._source['Topics']" [innerHtml]="topic"></a>
+                            <a class="result_links" *ngFor="let topic of doc._source['Topics']" (click)="openDocsBySingleFacet('Topics',topic)" [innerHtml]="topic"></a>
                         </div>
                     </div>
                 </div>
