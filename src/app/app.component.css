@@ -330,7 +330,6 @@ div .result_links:last-child::after{
     min-width: 136px;
     text-align: left;
     font-size: 14px;
-    cursor: pointer;
 }
 .selectItems {
     position: absolute;
@@ -363,6 +362,7 @@ div .result_links:last-child::after{
 }
 .itemRemove i {
     font-size: 14px;
+    cursor: pointer;
 }
 .filterRowText {
     display: inline-block;
@@ -374,6 +374,7 @@ div .result_links:last-child::after{
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
+    cursor: pointer;
 }
 .selectName i {
     margin-top: -3px;

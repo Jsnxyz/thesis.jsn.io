@@ -21,7 +21,7 @@ export class D3Service {
             container.attr('transform', 'translate(' + transform.x + ',' + transform.y + ') scale(' + transform.k + ')');
         }
 
-        zoom = d3.zoom().on('zoom', zoomed);
+        zoom = d3.zoom().scaleExtent([0.2, 7]).on('zoom', zoomed);
         svg.call(zoom);
     }
 

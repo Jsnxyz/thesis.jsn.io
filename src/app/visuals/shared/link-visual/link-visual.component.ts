@@ -10,6 +10,7 @@ import { Link } from '../../../d3';
         [attr.y1]="link.source.y"
         [attr.x2]="link.target.x"
         [attr.y2]="link.target.y"
+        [attr.stroke]="link.color"
     ></svg:line>
   `,
   styleUrls: ['./link-visual.component.css']

@@ -1,7 +1,6 @@
 <div class="header">
-    <div class="header_main">Header</div>
     <div class="search_field_wrap">
-        <input type="text" class="search_box" [(ngModel)]="searchBoxText" placeholder="Enter your query" #search />
+        <input type="text" class="search_box" (keyup.enter)="getGraphAndDocs(searchBoxText)" [(ngModel)]="searchBoxText" placeholder="Enter your query" #search />
         <button class="search_button" (click)="getGraphAndDocs(searchBoxText)">Search</button>
     </div>
 </div>

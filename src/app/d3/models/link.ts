@@ -7,9 +7,16 @@ export class Link implements d3.SimulationLinkDatum<Node> {
   // must - defining enforced implementation properties
   source: Node;
   target: Node;
-
-  constructor(source, target) {
+  color?: string;
+  constructor(source, target, doc_count,maxCount) {
     this.source = source;
     this.target = target;
+    this.color = this.getColor(doc_count,maxCount);
+  }
+  getColor(doc_count,maxCount){
+    console.log(maxCount,doc_count)
+    let alpha = doc_count / maxCount ;
+    alpha = alpha < 0.2 ? 0.2 : alpha;
+    return 'rgba(115, 99, 99,' + alpha +')';
   }
 }

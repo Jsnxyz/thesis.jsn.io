@@ -1,11 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import APP_CONFIG from './app.config';
 import { Node, Link } from './d3';
 import { Client } from 'elasticsearch-browser';
 import { SearchService } from './search.service';
-import {NgxPaginationModule} from 'ngx-pagination';
 import * as d3 from 'd3';
-import { xml } from 'd3';
 
 interface Facets {
     Subjects?: any;
@@ -82,7 +79,6 @@ export class AppComponent implements OnInit {
             }, error => {
                 console.error(error);
             }).then(() => {
-                console.log('Search Completed!');
             }
             );
 
@@ -92,7 +88,6 @@ export class AppComponent implements OnInit {
         return text.replace("_", " ");
     }
     loadFacets(aggs) {
-        console.log(aggs);
         this.facets.Contributors = {items : aggs.contributors_facet ? aggs.contributors_facet.buckets : [], count:aggs.contributors_facet.sum_other_doc_count || 0 };
         this.facets.Publisher_Name = {items: aggs.publisher_facet ? aggs.publisher_facet.buckets : [], count:aggs.publisher_facet.sum_other_doc_count || 0};
         this.facets.Publication_Year= {items: aggs.publication_year_facet ? aggs.publication_year_facet.buckets : [], count:aggs.publication_year_facet.sum_other_doc_count || 0 };
@@ -109,9 +104,15 @@ export class AppComponent implements OnInit {
         }
         this.nodes[nodeIndex].active = true;
         if(this.graphResults[nodeIndex]){
+            let max = 0;
+            for (let edge of this.graphResults[nodeIndex].edges.buckets) {
+                if (edge.doc_count > max && edge.key !== key) {
+                    max = edge.doc_count;
+                }
+            }
             for (let edge of this.graphResults[nodeIndex].edges.buckets) {
                 if (edge.key !== key) {
-                    links.push(new Link(key, edge.key));
+                    links.push(new Link(key, edge.key,edge.doc_count,max));
                 }
             }
             this.links = links;
@@ -133,13 +134,11 @@ export class AppComponent implements OnInit {
             }, error => {
                 console.error(error);
             }).then(() => {
-                console.log('Search Completed!');
             });
     }
     getNetworkWithoutFacetUpdate(text){
         let facets = Object.assign({}, this.selectedFacets);
         let topicName:string;
-        console.log(this.selectedFacets);
         if(this.selectedFacets.Topics && this.selectedFacets.Topics[0]){
             topicName = this.selectedFacets.Topics[0];
         }
@@ -151,7 +150,6 @@ export class AppComponent implements OnInit {
             }, error => {
                 console.error(error);
             }).then(() => {
-                console.log('Search Completed!');
                 setTimeout(() => {
                     if(topicName){
                         this.openLinks(topicName);
@@ -200,7 +198,6 @@ export class AppComponent implements OnInit {
             }, error => {
                 console.error(error);
             }).then(() => {
-                console.log('Search Completed!');
             });
     }
     getResultByTopics(topic, text) {
@@ -213,7 +210,6 @@ export class AppComponent implements OnInit {
             }, error => {
                 console.error(error);
             }).then(() => {
-                console.log('Search Completed!');
             });
     }
     limitText(text: any) {
@@ -238,7 +234,8 @@ export class AppComponent implements OnInit {
             });
             this.selectedFacets[facet].splice(facetKeyIndex, 1);
         }
-        this.getNetworkWithoutFacetUpdate(this.savedSearchText);
+        //this.getNetworkWithoutFacetUpdate(this.savedSearchText);
+        this.getNetwork(this.savedSearchText);
         this.getResultDocs(this.savedSearchText);
     }
     openDocsBySingleFacet(facet, facetKey) {
@@ -247,7 +244,7 @@ export class AppComponent implements OnInit {
         this.savedSearchText = "";
         this.selectedFacets = {};
         this.selectedFacets[facet] = [facetKey];
-        this.getNetworkWithoutFacetUpdate(this.savedSearchText);
+        this.getNetwork(this.savedSearchText);
         this.getResultDocs(this.savedSearchText);
     }
     openConnectingTopics(link){
@@ -269,7 +266,7 @@ export class AppComponent implements OnInit {
     }
     addFilters(){
         this.selectedFacets = Object.assign({},this.selectedMoreFacets);
-        this.getNetworkWithoutFacetUpdate(this.savedSearchText);
+        this.getNetwork(this.savedSearchText);
         this.getResultDocs(this.savedSearchText);
         this.showMoreFacets = false;
     }
@@ -278,6 +275,7 @@ export class AppComponent implements OnInit {
         this.getResultDocs(this.savedSearchText,pageNo);
     }
     openDoc(id){
+        this.openedDoc = null;
         this.es.getDocument(id)
             .then(response => {
                 this.openedDoc = response._source;
@@ -285,7 +283,6 @@ export class AppComponent implements OnInit {
             }, error => {
                 console.error(error);
             }).then(() => {
-                console.log('Search Completed!');
             });
     }
     goBackToDocs(){
@@ -294,7 +291,7 @@ export class AppComponent implements OnInit {
     filterByTopicInput(){
         if(this.topicNodeInput){
             return this.topicList.filter( (item) => {
-                if(item.includes(this.topicNodeInput)){
+                if(item.toLowerCase().includes(this.topicNodeInput.toLowerCase())){
                     return true;
                 }
                 return false;
@@ -376,7 +373,7 @@ export class AppComponent implements OnInit {
             return item === facetValue
         });
         this.selectedFacets[facet].splice(facetKeyIndex, 1);
-        this.getNetworkWithoutFacetUpdate(this.savedSearchText);
+        this.getNetwork(this.savedSearchText);
         this.getResultDocs(this.savedSearchText);
     }
 }

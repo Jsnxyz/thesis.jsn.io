@@ -23,20 +23,20 @@ export class ForceDirectedGraph {
         this.initSimulation(options);
     }
 
-    connectNodes(source, target) {
-        let link;
+    // connectNodes(source, target) {
+    //     let link;
 
-        if (!this.nodes[source] || !this.nodes[target]) {
-            throw new Error('One of the nodes does not exist');
-        }
+    //     if (!this.nodes[source] || !this.nodes[target]) {
+    //         throw new Error('One of the nodes does not exist');
+    //     }
 
-        link = new Link(source, target);
-        this.simulation.stop();
-        this.links.push(link);
-        this.simulation.alphaTarget(0.3).restart();
+    //     link = new Link(source, target);
+    //     this.simulation.stop();
+    //     this.links.push(link);
+    //     this.simulation.alphaTarget(0.3).restart();
 
-        this.initLinks();
-    }
+    //     this.initLinks();
+    // }
 
     initNodes(nodes?) {
         if (!this.simulation) {
