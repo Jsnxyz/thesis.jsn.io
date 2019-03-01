@@ -1,5 +1,5 @@
 import { Injectable, EventEmitter } from '@angular/core';
-import { Node, Link, ForceDirectedGraph } from './models';
+import { Node, Link, ForceDirectedGraph, ForceSimulator } from './models';
 import * as d3 from 'd3';
 
 @Injectable()
@@ -65,7 +65,7 @@ export class D3Service {
             div.transition()
                 .duration(200)
                 .style("opacity", .9);
-            div.html(`Click to see documents of ${link.source.id} and ${link.target.id}`)
+            div.html(`Click to see ${link.doc_count} documents of ${link.source.id} and ${link.target.id}`)
                 .style("left", (d3.event.pageX) + "px")
                 .style("top", (d3.event.pageY - 28) + "px");
         }
@@ -89,6 +89,11 @@ export class D3Service {
     */
     getForceDirectedGraph(nodes: Node[], links: Link[], options: { width, height }) {
         const sg = new ForceDirectedGraph(nodes, links, options);
+        return sg;
+    }
+
+    simulateGraph(nodes:Node[], links: Link[],options: {width,height}) {
+        const sg = new ForceSimulator(nodes, links, options);
         return sg;
     }
 }

@@ -177,22 +177,48 @@ export class SearchService {
                     "Serial Title",
                     "Series^3",
                     "Subjects^2"
-                ],
-                "fuzziness": 1,
-                "prefix_length": 3
+                ]
             }
         });
+        query['rescore'] = {
+            "window_size": 50, 
+            "query": {         
+                "rescore_query": {
+                    "multi_match": {
+                        "query": text,
+                        "fields": [
+                            "Creator^2",
+                            "Title^4",
+                            "Description",
+                            "ISBN",
+                            "ISSN",
+                            "Publisher^2",
+                            "Serial Title",
+                            "Series^3",
+                            "Subjects^2"
+                        ],
+                        "type": "phrase"
+                    }
+                }
+            }
+        }
         return query;
     }
-    getMoreFacets(text,facetName) {
+    getMoreFacets(text,facetName,facets) {
         let query = {};
         if(text){
             query = this.getDocsQuery(text);
+        } else {
+            query = this.getSkeletonQuery();
         }
         query["size"] = 0;
         query["aggs"] = this.more_facet_query.aggs;
         query["aggs"]["facets"]["terms"]["field"] = facetName + ".keyword";
-        console.log(query);
+        let facet_query = this.loadFacetsToQuery(facets, facetName);
+        for(let facet of facet_query){
+            query["query"]["bool"]["must"].push(facet);
+        }
+        console.log(JSON.stringify(query));
         return this.client.search({
             index: "bib-index",
             type: "bib-type",
@@ -239,9 +265,12 @@ export class SearchService {
             body: query
         });
     }
-    loadFacetsToQuery(facets){
+    loadFacetsToQuery(facets, moreFacetKey?){
         let facet_arr = [];
         for(let facet in facets){
+            if(moreFacetKey == facet){
+                continue;
+            }
             let facetName = this.removeUnderscore(facet);
             if(facets[facet].length > 0){
                 let term = { terms : {}};
@@ -254,12 +283,15 @@ export class SearchService {
     removeUnderscore(text){
         return text.replace("_"," ");
     }
-    getDocuments(text,facets?:any,pageNo = 1) {
+    getDocuments(text,facets?:any,pageNo = 1, loadFacets = false) {
         let query;
         if(text){
             query = this.getDocsQuery(text);
         } else {
             query = this.getSkeletonQuery();
+        }
+        if(loadFacets){
+            query["aggs"] = this.network_facet_query.aggs;
         }
         let facet_query = this.loadFacetsToQuery(facets);
         for(let facet of facet_query){
@@ -269,49 +301,8 @@ export class SearchService {
         return this.client.search({
             index: "bib-index",
             type: "bib-type",
-            _source: "Uniform Title,Main Title,Contributors,Description,Subjects,Topics",
+            _source: "Uniform Title,Main Title,Contributors,Description,Subjects,Topics,thumbnail,ISBN",
             from: (pageNo - 1) * 10,
-            body: query
-        });
-    }
-    getDocumentsByTopic(text: string = "", topic, facets?:any ) {
-        let query: any = {
-            "query": {
-                "bool": {
-                    "must": [
-                        {
-                            "term": {
-                                "Topics.keyword": topic
-                            }
-                        }
-                    ]
-                }
-            }
-        }
-        if (text) {
-            let textQuery = {
-                "multi_match": {
-                    "query": text,
-                    "fields": [
-                        "Creator^2",
-                        "Title^4",
-                        "Description",
-                        "ISBN",
-                        "ISSN",
-                        "Publisher^2",
-                        "Serial Title",
-                        "Series^3",
-                        "Subjects^2"
-                    ],
-                    "type": "phrase"
-                }
-            }
-            query.query.bool.must.push(textQuery);
-        }
-        return this.client.search({
-            index: "bib-index",
-            type: "bib-type",
-            _source: "Uniform Title,Main Title,Contributors,Description,Subjects,Topics",
             body: query
         });
     }

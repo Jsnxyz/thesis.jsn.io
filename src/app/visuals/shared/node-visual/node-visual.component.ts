@@ -4,7 +4,7 @@ import { Node } from '../../../d3';
 @Component({
   selector: '[nodeVisual]',
   template: `
-    <svg:g [attr.transform]="'translate(' + node.x + ',' + node.y + ')'">
+    <svg:g class="nodeWrapper" [attr.transform]="'translate(' + node.x + ',' + node.y + ')'">
       <svg:circle
           class="node"
           [class.active]="node.active"

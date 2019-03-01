@@ -53,7 +53,7 @@
     position: relative;
 }
 .results_section{
-    width: 400px;
+    width: 40%;
     position: relative;
     height: 100%;
     overflow-x: hidden;
@@ -136,7 +136,14 @@ text {
     margin-bottom: 10px; 
     font-size:14px;
     overflow-wrap: break-word;
+    display:flex;
 }
+/* .imgPreview, .result_content {
+    float:left;
+}
+.clearfix {
+    clear: both;
+} */
 .doc_page{
     left: 100%;
     overflow: auto;
@@ -205,6 +212,7 @@ div .result_links:last-child::after{
 }
 ::ng-deep .ngx-pagination{
     padding-left: 0;
+    text-align: center;
 }
 .results_section_wrapper{
     height: 100%;
@@ -214,7 +222,7 @@ div .result_links:last-child::after{
     position: absolute;
     bottom: 0;
     background: #ebebeb;
-    width: 383px;
+    width: 100%;
 }
 .results_section_inner_wrapper{
     padding-bottom: 57px;
@@ -363,6 +371,11 @@ div .result_links:last-child::after{
 .itemRemove i {
     font-size: 14px;
     cursor: pointer;
+}
+.result img {
+    max-width: 100px;
+    min-width: 1px;
+    margin-bottom: 10px;
 }
 .filterRowText {
     display: inline-block;

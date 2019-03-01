@@ -6,6 +6,8 @@
 
     stroke: white;
     stroke-width: 0.25;
+    /* fill: #0000 !important;
+    stroke: #0000 !important; */
 }
 
 .node-name {

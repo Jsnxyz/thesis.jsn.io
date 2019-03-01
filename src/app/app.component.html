@@ -70,7 +70,7 @@
                     </div>
                 </div>
             </div>
-            <graph [nodes]="nodes" [links]="links" (linkClicked)="openConnectingTopics($event)" (nodeClicked)="openLinks($event)"></graph>
+            <graph [nodes]="nodes" [links]="links" [oldNodes]="oldNodes" (nodesChanged)="setNodes($event)" (linkClicked)="openConnectingTopics($event)" (nodeClicked)="openLinks($event)"></graph>
         </ng-container>
     </div>
     <div class="results_section">
@@ -78,22 +78,29 @@
             <div class="results_section_wrapper">
                 <div class="results_section_inner_wrapper">
                     <div class="result" *ngFor="let doc of docResults | paginate: { itemsPerPage: 10, currentPage: currentPage, totalItems: totalDocs }">
-                        <div class="result_title" (click)="openDoc(doc._id)" [innerHtml]="doc._source['Uniform Title'] || doc._source['Main Title']"></div>
-                        <div *ngIf="doc._source['Description']" class="result_description">
-                            <div class="result_clamp" [innerHtml]="limitText(doc._source['Description'])"></div>
+                        <div class="imgPreview">
+                            <img *ngIf="doc._source['thumbnail']" [src]="doc._source['thumbnail']" ALIGN="left" />
+                            <img class="oLImg" ALIGN="left" *ngIf="!doc._source['thumbnail'] && doc._source['ISBN']" src="http://covers.openlibrary.org/b/isbn/{{doc._source['ISBN'][0]}}-M.jpg" alt="" />
                         </div>
-                        <div *ngIf="doc._source['Contributors']" class="result_year result_contributors">
-                            <a class="result_links" *ngFor="let name of doc._source['Contributors']" (click)="openDocsBySingleFacet('Contributors',name)" [innerHtml]="name"></a>
+                        <div class="result_content">
+                                <div class="result_title" (click)="openDoc(doc._id)" [innerHtml]="doc._source['Uniform Title'] || doc._source['Main Title']"></div>
+                                <div *ngIf="doc._source['Description']" class="result_description">
+                                    <div class="result_clamp" [innerHtml]="limitText(doc._source['Description'])"></div>
+                                </div>
+                                <div *ngIf="doc._source['Contributors']" class="result_year result_contributors">
+                                    <a class="result_links" *ngFor="let name of doc._source['Contributors']" (click)="openDocsBySingleFacet('Contributors',name)" [innerHtml]="name"></a>
+                                </div>
+                                <div *ngIf="doc._source['Subjects']" class="result_year">
+                                    <div class="result_subject">
+                                        <a class="result_links" *ngFor="let subject of getUnique(doc._source['Subjects'])"
+                                        (click)="openDocsBySingleFacet('Subjects',subject)" [innerHtml]="subject"></a>
+                                    </div>
+                                </div>
+                                <div *ngIf="doc._source['Topics']" class="result_year result_topic">
+                                    <a class="result_links" *ngFor="let topic of doc._source['Topics']" (click)="openDocsBySingleFacet('Topics',topic)" [innerHtml]="topic"></a>
+                                </div>
                         </div>
-                        <div *ngIf="doc._source['Subjects']" class="result_year">
-                            <div class="result_subject">
-                                <a class="result_links" *ngFor="let subject of getUnique(doc._source['Subjects'])"
-                                (click)="openDocsBySingleFacet('Subjects',subject)" [innerHtml]="subject"></a>
-                            </div>
-                        </div>
-                        <div *ngIf="doc._source['Topics']" class="result_year result_topic">
-                            <a class="result_links" *ngFor="let topic of doc._source['Topics']" (click)="openDocsBySingleFacet('Topics',topic)" [innerHtml]="topic"></a>
-                        </div>
+                        <div class="clearfix"></div>
                     </div>
                 </div>
             </div>

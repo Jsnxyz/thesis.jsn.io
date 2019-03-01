@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Node, Link } from './d3';
 import { Client } from 'elasticsearch-browser';
 import { SearchService } from './search.service';
+import { Observable } from 'rxjs';
 import * as d3 from 'd3';
 
 interface Facets {
@@ -19,6 +20,8 @@ interface Facets {
 export class AppComponent implements OnInit {
     nodes: Node[] = [];
     links: Link[] = [];
+    oldNodes:Node[] = [];
+
     realLinks: Link[] = [];
     client: Client;
     graphResults: any = [];
@@ -37,6 +40,9 @@ export class AppComponent implements OnInit {
     topicList: string[] = [];
     showTopicList = false;
     centerNode = "";
+
+    mouseClick = Observable.fromEvent(document, 'click');
+    clickSubscription;
 
     showFilter = false;
 
@@ -63,17 +69,8 @@ export class AppComponent implements OnInit {
                     }
                 });
                 for (let node of this.graphResults) {
-                    nodes.push(new Node(node.key, max));
+                    nodes.push(new Node(node.key, node.doc_count, max));
                     this.topicList.push(node.key);
-                }
-                let nodeIter = 0;
-                for (let node of this.graphResults) {
-                    for (let edge of node.edges.buckets) {
-                        if (edge.key !== node.key) {
-                            nodes[nodeIter].linkCount = node.doc_count;
-                        }
-                    }
-                    nodeIter++;
                 }
                 this.nodes = nodes;
             }, error => {
@@ -81,17 +78,29 @@ export class AppComponent implements OnInit {
             }).then(() => {
             }
             );
-
+            this.clickSubscription = this.mouseClick.subscribe((evt: MouseEvent) => {
+                let element:any = evt.srcElement;
+                if (element) {
+                    if (!(element.closest('.selectBox') !== null || element.classList.contains(".selectBox"))) {
+                        this.closeDropDowns();
+                    }
+                }
+            });
+    
 
     }
     removeUnderscore(text) {
         return text.replace("_", " ");
     }
     loadFacets(aggs) {
-        this.facets.Contributors = {items : aggs.contributors_facet ? aggs.contributors_facet.buckets : [], count:aggs.contributors_facet.sum_other_doc_count || 0 };
-        this.facets.Publisher_Name = {items: aggs.publisher_facet ? aggs.publisher_facet.buckets : [], count:aggs.publisher_facet.sum_other_doc_count || 0};
-        this.facets.Publication_Year= {items: aggs.publication_year_facet ? aggs.publication_year_facet.buckets : [], count:aggs.publication_year_facet.sum_other_doc_count || 0 };
-        this.facets.Subjects = {items: aggs.subject_facet ? aggs.subject_facet.buckets : [], count:aggs.subject_facet.sum_other_doc_count || 0 };
+        if(!(this.selectedFacets.Contributors && this.selectedFacets.Contributors.length > 0))
+            this.facets.Contributors = {items : aggs.contributors_facet ? aggs.contributors_facet.buckets : [], count:aggs.contributors_facet.sum_other_doc_count || 0 };
+        if(!(this.selectedFacets.Publisher_Name && this.selectedFacets.Publisher_Name.length > 0))
+            this.facets.Publisher_Name = {items: aggs.publisher_facet ? aggs.publisher_facet.buckets : [], count:aggs.publisher_facet.sum_other_doc_count || 0};
+        if(!(this.selectedFacets.Publication_Year && this.selectedFacets.Publication_Year.length > 0))
+            this.facets.Publication_Year= {items: aggs.publication_year_facet ? aggs.publication_year_facet.buckets : [], count:aggs.publication_year_facet.sum_other_doc_count || 0 };
+        if(!(this.selectedFacets.Subjects && this.selectedFacets.Subjects.length > 0))
+            this.facets.Subjects = {items: aggs.subject_facet ? aggs.subject_facet.buckets : [], count:aggs.subject_facet.sum_other_doc_count || 0 };
     }
 
     openLinks(key) {
@@ -110,12 +119,26 @@ export class AppComponent implements OnInit {
                     max = edge.doc_count;
                 }
             }
+            let newNodes = [];
             for (let edge of this.graphResults[nodeIndex].edges.buckets) {
                 if (edge.key !== key) {
+                    //get node index and update maxCount and linkCount
+                    let nodeIndex = this.nodes.findIndex(function (item, i) {
+                        return item.id === edge.key
+                    });
+                    newNodes.push(new Node(edge.key, edge.doc_count, max));
                     links.push(new Link(key, edge.key,edge.doc_count,max));
+                } else {
+                    newNodes.push(new Node(edge.key,edge.doc_count,edge.doc_count));
                 }
             }
-            this.links = links;
+            this.links = [];
+            this.oldNodes = this.nodes;
+            this.nodes = newNodes;            
+            setTimeout(() => {
+                this.links = links;
+            },1000)
+            
             this.getResultByTopics(key, this.searchBoxText);
         }
     }
@@ -128,12 +151,23 @@ export class AppComponent implements OnInit {
     }
     getNetwork(text) {
         this.links = [];
+        let facets = Object.assign({}, this.selectedFacets);
+        let topicName:string;
+        if(this.selectedFacets.Topics && this.selectedFacets.Topics[0]){
+            topicName = this.selectedFacets.Topics[0];
+        }
+        facets.Topics = [];
         this.es.searchGraph(text, this.selectedFacets)
             .then(response => {
                 this.graphUpdate(response,true);
             }, error => {
                 console.error(error);
             }).then(() => {
+                setTimeout(() => {
+                    if(topicName){
+                        this.openLinks(topicName);
+                    }
+                },1000)
             });
     }
     getNetworkWithoutFacetUpdate(text){
@@ -175,25 +209,19 @@ export class AppComponent implements OnInit {
         });
         this.topicList = [];
         for (let node of this.graphResults) {
-            nodes.push(new Node(node.key, max));
+            nodes.push(new Node(node.key,node.doc_count, max));
             this.topicList.push(node.key);
         }
-        let nodeIter = 0;
-        for (let node of this.graphResults) {
-            for (let edge of node.edges.buckets) {
-                if (edge.key !== node.key) {
-                    nodes[nodeIter].linkCount = node.doc_count;
-                }
-            }
-            nodeIter++;
-        }
+        this.oldNodes = this.nodes;
         this.nodes = nodes;
     }
     //get facets and hits. 
     getResultDocs(text,pageNo = 1) {
+        this.currentPage = pageNo;
         this.es.getDocuments(text, this.selectedFacets,pageNo)
             .then(response => {
                 this.docResults = response.hits.hits;
+                console.log(this.docResults[0])
                 this.totalDocs = response.hits.total;
             }, error => {
                 console.error(error);
@@ -203,10 +231,11 @@ export class AppComponent implements OnInit {
     getResultByTopics(topic, text) {
         text = text || "";
         this.selectedFacets.Topics = [topic];
-        this.es.getDocuments(text, this.selectedFacets)
+        this.es.getDocuments(text, this.selectedFacets, undefined, true)
             .then(response => {
                 this.docResults = response.hits.hits;
                 this.totalDocs = response.hits.total;
+                this.loadFacets(response.aggregations);
             }, error => {
                 console.error(error);
             }).then(() => {
@@ -272,6 +301,8 @@ export class AppComponent implements OnInit {
     }
     paginateClick(pageNo){
         this.currentPage = pageNo;
+        const scrollElement = document.querySelector('.results_section_wrapper');
+        scrollElement.scrollTop = 0;
         this.getResultDocs(this.savedSearchText,pageNo);
     }
     openDoc(id){
@@ -340,7 +371,8 @@ export class AppComponent implements OnInit {
     }
     getMoreFacetItems(facet) {
         this.selectedMoreFacets = Object.assign({}, this.selectedFacets);
-        this.es.getMoreFacets(this.savedSearchText, this.removeUnderscore(facet))
+        const facets = Object.assign({},this.selectedFacets);
+        this.es.getMoreFacets(this.savedSearchText, this.removeUnderscore(facet), facets )
         .then(response => {
             this.moreFacets = {};
             const aggs = response.aggregations;
@@ -368,6 +400,14 @@ export class AppComponent implements OnInit {
             element.classList.add('show'); 
         }
     }
+    closeDropDowns() {
+        let elements = document.querySelectorAll('.selectItems');
+        for(let i = 0; i < elements.length; i++ ){
+            if(elements[i].classList.contains('show')){
+                elements[i].classList.remove('show'); 
+            }
+        }
+    }
     removeFilter(facet, facetValue){
         const facetKeyIndex = this.selectedFacets[facet].findIndex(function (item, i) {
             return item === facetValue
@@ -375,5 +415,9 @@ export class AppComponent implements OnInit {
         this.selectedFacets[facet].splice(facetKeyIndex, 1);
         this.getNetwork(this.savedSearchText);
         this.getResultDocs(this.savedSearchText);
+    }
+    setNodes(nodes){
+        //this.oldNodes = this.nodes;
+        this.nodes = nodes;
     }
 }

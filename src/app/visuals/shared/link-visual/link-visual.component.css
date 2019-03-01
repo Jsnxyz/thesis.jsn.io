@@ -2,6 +2,7 @@
     stroke-width: 2;
     /* stroke: #736363; */
     cursor: pointer;
+    stroke: rgba(0,0,0,0.05);
 }
 .link:hover {
     stroke-width: 3;

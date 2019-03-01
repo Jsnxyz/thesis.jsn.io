@@ -8,13 +8,16 @@ export class Link implements d3.SimulationLinkDatum<Node> {
   source: Node;
   target: Node;
   color?: string;
+  doc_count?: number;
+  max_count?:number;
   constructor(source, target, doc_count,maxCount) {
     this.source = source;
     this.target = target;
+    this.doc_count = doc_count;
+    this.max_count = maxCount;
     this.color = this.getColor(doc_count,maxCount);
   }
   getColor(doc_count,maxCount){
-    console.log(maxCount,doc_count)
     let alpha = doc_count / maxCount ;
     alpha = alpha < 0.2 ? 0.2 : alpha;
     return 'rgba(115, 99, 99,' + alpha +')';
