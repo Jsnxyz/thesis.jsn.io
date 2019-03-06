@@ -1,0 +1,39 @@
+:host {
+    display:flex;
+    flex:1;
+}
+.concept-graph{
+    width: 100%;
+    overflow:hidden;
+    overflow-y:auto;
+}
+::ng-deep svg {
+    font: 12px sans-serif;
+}
+::ng-deep text {
+    pointer-events: all;
+}
+::ng-deep .inner_node text{
+    cursor: pointer;
+}
+::ng-deep .inner_node rect {
+    /* pointer-events: all; */
+}
+::ng-deep .inner_node rect.highlight {
+    stroke: #315B7E;
+    stroke-width: 2px;
+}
+::ng-deep .outer_node circle {
+    fill: #fff;
+    stroke: steelblue;
+    stroke-width: 1.5px;
+    pointer-events: all;
+}
+::ng-deep .outer_node circle.highlight
+{
+    stroke: #315B7E;
+    stroke-width: 2px;
+}
+::ng-deep .link {
+    fill: none;
+}

@@ -60,7 +60,7 @@
     </div>
     <div class="explore_section">
         <ng-container *ngIf="nodes.length > 0">
-            <div class="find_node_wrap">
+            <div [class.hidden]="resultPageToggle" class="find_node_wrap">
                 <div class="searchBoxAndTopicList">
                     <input type="text" (focus)="toggleTopicList()" (blur)="delayToggleTopicList()" class="search_box"
                         [(ngModel)]="topicNodeInput" placeholder="Find node" />
@@ -70,7 +70,8 @@
                     </div>
                 </div>
             </div>
-            <graph [nodes]="nodes" [links]="links" [oldNodes]="oldNodes" (nodesChanged)="setNodes($event)" (linkClicked)="openConnectingTopics($event)" (nodeClicked)="openLinks($event)"></graph>
+            <app-concept-graph *ngIf="resultPageToggle" [data]="mltResults" (docIdClicked)="openDoc($event, false)"></app-concept-graph>
+            <graph [class.hidden]="resultPageToggle" [nodes]="nodes" [links]="links" [oldNodes]="oldNodes" (nodesChanged)="setNodes($event)" (linkClicked)="openConnectingTopics($event)" (nodeClicked)="openLinks($event)"></graph>
         </ng-container>
     </div>
     <div class="results_section">
@@ -83,7 +84,7 @@
                             <img class="oLImg" ALIGN="left" *ngIf="!doc._source['thumbnail'] && doc._source['ISBN']" src="http://covers.openlibrary.org/b/isbn/{{doc._source['ISBN'][0]}}-M.jpg" alt="" />
                         </div>
                         <div class="result_content">
-                                <div class="result_title" (click)="openDoc(doc._id)" [innerHtml]="doc._source['Uniform Title'] || doc._source['Main Title']"></div>
+                                <div class="result_title" (click)="openDoc(doc._id, true)" [innerHtml]="doc._source['Uniform Title'] || doc._source['Main Title']"></div>
                                 <div *ngIf="doc._source['Description']" class="result_description">
                                     <div class="result_clamp" [innerHtml]="limitText(doc._source['Description'])"></div>
                                 </div>

@@ -7,7 +7,7 @@
     word-break: break-word;
 }
 .detailsSection {
-    font-size: 14px;
+    font-size: 13px;
 }
 .detailsHeader {
     margin: 10px 0;
@@ -18,19 +18,19 @@
     margin: 5px 0;
     display: -ms-flexbox;
     display: flex;
-    border-bottom: solid 0.5px #cecece;
+    /* border-bottom: solid 0.5px #cecece; */
     padding: 0 0 5px 0;
 }
 span.detailValue {
     padding-left: 10px;
-    width:300px;
+    width:100%;
 }
 .detailLabel{
-    width:100px;
+    width:135px;
 }
-.detailLabel::after{
+/* .detailLabel::after{
     content: ': '
-}
+} */
 .backButton{
     width:50px;
     height:30px;

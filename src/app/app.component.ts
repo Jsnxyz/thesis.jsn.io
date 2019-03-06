@@ -49,6 +49,7 @@ export class AppComponent implements OnInit {
     showMoreFacets = false;
     moreFacets: Facets = {};
     selectedMoreFacets: Facets = {};
+    mltResults = [];
     getKeys(object: {}) {
         return Object.keys(object);
     }
@@ -78,16 +79,21 @@ export class AppComponent implements OnInit {
             }).then(() => {
             }
             );
-            this.clickSubscription = this.mouseClick.subscribe((evt: MouseEvent) => {
-                let element:any = evt.srcElement;
-                if (element) {
-                    if (!(element.closest('.selectBox') !== null || element.classList.contains(".selectBox"))) {
-                        this.closeDropDowns();
-                    }
+        
+        this.clickSubscription = this.mouseClick.subscribe((evt: MouseEvent) => {
+            let element:any = evt.srcElement;
+            if (element) {
+                if (!(element.closest('.selectBox') !== null || element.classList.contains(".selectBox"))) {
+                    this.closeDropDowns();
                 }
-            });
-    
-
+            }
+        });
+    }
+    toUnique(a, b?, c?) { //array,placeholder,placeholder
+        b = a.length;
+        while (c = --b)
+          while (c--) a[b].key !== a[c].key || a.splice(c, 1);
+        return a // not needed ;)
     }
     removeUnderscore(text) {
         return text.replace("_", " ");
@@ -137,6 +143,9 @@ export class AppComponent implements OnInit {
             this.nodes = newNodes;            
             setTimeout(() => {
                 this.links = links;
+                // setTimeout(() => {
+                //     this.centerTopic(key);
+                // },1000)
             },1000)
             
             this.getResultByTopics(key, this.searchBoxText);
@@ -305,8 +314,11 @@ export class AppComponent implements OnInit {
         scrollElement.scrollTop = 0;
         this.getResultDocs(this.savedSearchText,pageNo);
     }
-    openDoc(id){
+    openDoc(id,getMLT = true){
         this.openedDoc = null;
+        if(getMLT){
+            this.getMLT(id);
+        }
         this.es.getDocument(id)
             .then(response => {
                 this.openedDoc = response._source;
@@ -316,8 +328,64 @@ export class AppComponent implements OnInit {
             }).then(() => {
             });
     }
+    getMLT(id){
+        this.es.getMLTById(id).then(response => {
+            let results = response.hits.hits;
+            let nodes:Node[] = [];
+            let links:Link[] = [];
+            let topics = {};
+            let arr = [];
+            // Creates Nodes
+            for(let i = 0; i < results.length ; i++) {
+                let outerArray = [];
+                let innerArray = [];
+                if(results[i]._source["Main Title"]) 
+                    outerArray.push(results[i]._source["Main Title"][0]);
+                else {
+                    // let t = "";
+                    // for(let j=0;j<results[i]._source["Title"][0].length; j++)
+                    //     t = t + results[i]._source["Title"][0][j] + " ";
+                    outerArray.push(results[i]._source["Title"][0]);
+                }
+                    
+                for(let topic of results[i]._source.Topics){
+                    //topics.push({key: topic, edges:[]});
+                    // if(topics[topic]){
+                    //     topics[topic].edges = [...topics[topic]["edges"], ...results[i]._source["Main Title"][0]];
+                    // } else {
+                    //     topics[topic] = {edges : [results[i]._source["Main Title"][0]]}
+                    // }
+                    innerArray.push(topic);
+                    
+                }
+                outerArray.push(innerArray);
+                outerArray.push(results[i]._id);
+                arr.push(outerArray);
+                // topics[results[i]._source["Main Title"][0]] = {};
+                
+            }
+            // for(let topic of this.getKeys(topics)){
+            //     if(topics[topic].edges && topics[topic].edges.length > 0){
+            //         for(let edge of topics[topic].edges) {
+            //             links.push(new Link(topic,edge,1,1))
+            //         }
+            //     }
+            //     nodes.push(new Node(topic,1,1));
+            // }
+            // this.nodes = nodes;
+            // this.links = links;
+            //topics = this.toUnique(topics);
+            console.log(arr);
+            this.mltResults = arr;
+        }, error => {
+
+        }).then(()=>{
+
+        });
+    }
     goBackToDocs(){
         this.resultPageToggle = false;
+        this.mltResults = [];
     }
     filterByTopicInput(){
         if(this.topicNodeInput){

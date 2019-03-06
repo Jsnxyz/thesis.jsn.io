@@ -35,7 +35,7 @@ const IdentifiersNumbersDetailsInterface = [
     {"Standard Number": ""}
 ]
 const ResourceDetailsInterface = [
-    {"Physical Description" : ""}, 
+    // {"Physical Description" : ""}, 
     {"Physical Details" : ""}, 
     {"Accompanying Material" : ""}, 
     {"Genre Form" : ""}, 
@@ -47,10 +47,10 @@ const ResourceDetailsInterface = [
     {"Coded Catrographic Mathematical Data" : ""}, 
     {"Content Related Data" : ""}, 
     {"Date Type Status" : ""}, 
-    {"Geographic Area Code" : ""}, 
-    {"Media Type Code" : ""}, 
-    {"Carrier Type Code" : ""}, 
-    {"Content Type Code" : ""}, 
+    // {"Geographic Area Code" : ""}, 
+    // {"Media Type Code" : ""}, 
+    // {"Carrier Type Code" : ""}, 
+    // {"Content Type Code" : ""}, 
     {"Sublocation" : ""}, 
     {"Relator": ""}
 ]
@@ -71,10 +71,10 @@ const UncategorizedMetadataInterface = [
 ]
 export const DocPresentationInterface = [
     {"Main Details" : MainDetailsInterface},
+    {"Topical Subjects": TopicalSubjectsInterface},
     {"Publication Details": PublicationDetailsInterface},
     {"Identifiers and Numbers": IdentifiersNumbersDetailsInterface},
     {"Resource Details": ResourceDetailsInterface},
     {"Notes":NotesInterface},
-    {"Topical Subjects": TopicalSubjectsInterface},
     {"Uncategorized Metadata": UncategorizedMetadataInterface}
 ]

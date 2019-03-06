@@ -49,6 +49,7 @@
 }
 .explore_section{
     flex:1;
+    display:flex;
     border-right: solid 1px #00000012;
     position: relative;
 }
@@ -60,6 +61,9 @@
     /*display:none;
     position: absolute;
     z-index:1;*/
+}
+.hidden {
+    display:none;
 }
 .node {
     stroke: #fff;

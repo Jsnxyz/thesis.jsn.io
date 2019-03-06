@@ -13,6 +13,7 @@ import {NgxPaginationModule} from 'ngx-pagination';
 import { ThousandSuffixesPipe }  from './pipes/thousand-suffixes.pipe';
 import { MapValuesPipe } from './pipes/map-values.pipe'
 import { DocPageComponent } from './visuals/shared/doc-page/doc-page.component';
+import { ConceptGraphComponent } from './concept-graph/concept-graph.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -21,7 +22,8 @@ import { DocPageComponent } from './visuals/shared/doc-page/doc-page.component';
     ...D3_DIRECTIVES,
     ThousandSuffixesPipe,
     DocPageComponent,
-    MapValuesPipe
+    MapValuesPipe,
+    ConceptGraphComponent
   ],
   imports: [
     BrowserModule,

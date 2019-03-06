@@ -313,4 +313,26 @@ export class SearchService {
             id: id
         });
     }
+    getMLTById(id){
+        return this.client.search({
+            index: "bib-index",
+            type: "bib-type",
+            _source: "Main Title,Topics,Title",
+            body: {
+                    "size" : 20,
+                     "query": {
+                         "more_like_this" : {
+                             "like" : [
+                             {
+                                 "_index" : "bib-index",
+                                 "_type" : "bib-type",
+                                 "_id" : id
+                             }
+                            ],
+                            "include" : "true"
+                         }
+                    }
+            }
+        })
+    }
 }
