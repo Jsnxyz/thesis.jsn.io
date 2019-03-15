@@ -1,6 +1,6 @@
 # Visualizing Enhanced Metadata with Topics. 
 
-Original fork from [published on medium](https://medium.com/@lsharir/visualizing-data-with-angular-and-d3-209dde784aeb)
+Original fork from [https://medium.com/@lsharir/visualizing-data-with-angular-and-d3-209dde784aeb](https://medium.com/@lsharir/visualizing-data-with-angular-and-d3-209dde784aeb)
 
 This project was generated with [angular-cli](https://github.com/angular/angular-cli) version 1.0.0-beta.26.
 
