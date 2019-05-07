@@ -24,9 +24,11 @@ export class DocPageComponent implements OnInit {
     @Input() doc;
     @Output() back = new EventEmitter();
     docformatted = new Map();
+    activeTask:string = "";
     constructor() { }
 
     ngOnInit() {
+        this.activeTask = window.sessionStorage.getItem("active");
         for (let i = 0; i < DocPresentationInterface.length; i++) {
             for (let details of Object.keys(DocPresentationInterface[i])) {
                 let innerMap = new Map();
