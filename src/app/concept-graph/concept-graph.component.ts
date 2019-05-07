@@ -92,7 +92,7 @@ export class ConceptGraphComponent implements OnInit, OnChanges {
             else
                 this.data.outer[i1++] = this.outer[i];
         }
-        console.log(this.data.outer.reduce(function (a, b) { return a + b.related_links.length; }, 0) / this.data.outer.length);
+        // console.log(this.data.outer.reduce(function (a, b) { return a + b.related_links.length; }, 0) / this.data.outer.length);
         var il = this.data.inner.length;
         var ol = this.data.outer.length;
         const cw = document.querySelector('.explore_section').clientWidth;
@@ -150,7 +150,7 @@ export class ConceptGraphComponent implements OnInit, OnChanges {
         .attr('class', 'link')
         .attr('id', function (d) { return d.id })
         .attr("d", this.diagonal)
-        .attr('stroke', function (d) { console.log(d);return getColor(d.inner.id); })
+        .attr('stroke', function (d) { return getColor(d.inner.id); })
         .attr('stroke-width', this.link_width);
         // outer nodes
         var onode = this.svg.append('g').selectAll(".outer_node")
@@ -226,7 +226,7 @@ export class ConceptGraphComponent implements OnInit, OnChanges {
 
     get_color(id) {
         id = parseInt(id.replace("i",""));
-        const colors = ["#a50026", "#d73027", "#f46d43", "#fdae61", "#fee090", "#ffffbf", "#abd9e9", "#74add1", "#4575b4", "#313695"]
+        const colors = ["#8dd3c7","#ffffb3","#bebada","#fb8072","#80b1d3","#fdb462","#b3de69","#fccde5","#d9d9d9","#bc80bd"]
         let color = d3.scaleLinear()
             .domain([0, 19])
             .range([colors.length - 1, 0])

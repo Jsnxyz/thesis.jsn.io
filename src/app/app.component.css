@@ -9,11 +9,25 @@
     overflow-y: hidden;
     width: 100%;
 }
+.header_link {
+    float: left;
+    padding: 5px 10px;
+    cursor: pointer;
+    color: cornflowerblue;
+}
+.header_link:hover {
+    text-decoration: underline;
+}
 .main_wrapper{
     display: flex;
     flex: 1;
     flex-direction: row;
     position: relative;
+}
+.sessionWrap {
+    position: absolute;
+    right: 20px;
+    top: 15px;
 }
 .filter_sections{
     width:225px;
@@ -88,6 +102,15 @@ text {
     text-align: center;
     display:flex;
     height:50px;
+    position: relative;
+}
+.bookmark {
+    width:20px;
+    vertical-align: bottom;
+    color: grey;
+}
+.bookmark.active {
+    color: cornflowerblue;
 }
 .search_box {
     padding: 5px 10px;
@@ -111,6 +134,9 @@ text {
     padding: 10px;
     border-bottom: solid 1px #cecece;
     font-size:12px;
+}
+.filter_sections.textual {
+    position: relative;
 }
 .filter_header {
     font-size: 14px;
@@ -160,6 +186,10 @@ text {
 }
 .docOpened{
     transform: translateX(-100%);
+}
+.results_section.textual {
+    flex: 1;
+    width: initial;
 }
 .result_title { 
     color:cornflowerblue;
@@ -233,7 +263,6 @@ div .result_links:last-child::after{
 }
 .search_field_wrap{
     flex: 1;
-    margin-left: -70px;
 }
 .find_node_wrap{
     flex: 1;

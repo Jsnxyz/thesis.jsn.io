@@ -1,141 +1,162 @@
 <div class="header">
     <div class="search_field_wrap">
-        <input type="text" class="search_box" (keyup.enter)="getGraphAndDocs(searchBoxText)" [(ngModel)]="searchBoxText" placeholder="Enter your query" #search />
-        <button class="search_button" (click)="getGraphAndDocs(searchBoxText)">Search</button>
+        <div class="sessionWrap">
+            <input [(ngModel)]="taskCode" type="text" placeholder="Task Code" />
+            <button [disabled]="activeTask" (click)="sessionStart()">Start</button>
+            <button (click)="sessionEnd()">End</button>
+        </div>
+        <ng-container *ngIf="interfaceType > 0">
+            <input type="text" class="search_box" (keyup.enter)="getGraphAndDocs(searchBoxText)" [(ngModel)]="searchBoxText"
+                placeholder="Enter your query" #search />
+            <button class="search_button" (click)="getGraphAndDocs(searchBoxText)">Search</button>
+        </ng-container>
     </div>
 </div>
-<div class="text_search_row">
-    <div class="filterRowText">Selected filters</div>
-    <ng-container *ngFor="let item of getKeys(selectedFacets)">
-        <ng-container *ngIf="selectedFacets[item].length > 0">
-            <div class="selectBox sB{{item}}" (click)="openSelectedFilterDropDown(item)">
-                <div class="selectName">
-                    {{removeUnderscore(item)}}
-                    <i class="material-icons">
-                        keyboard_arrow_down
-                    </i>
-                </div>
-                <div class="selectItems sB{{item}}" (click)="$event.stopPropagation()">
-                    <ng-container *ngFor="let value of selectedFacets[item]">
-                        <div class="selectItem">
-                            <div class="itemText">
-                                {{value}}
-                            </div>
-                            <div class="itemRemove" (click)="removeFilter(item,value)">
-                                <i class="material-icons">close</i>
-                            </div>
-                        </div>
-                    </ng-container>
-                </div>
-            </div>
-        </ng-container>
-    </ng-container>
-</div>
-
-<div class="main_wrapper">
-    <div class="filter_sections" [class.showFilter]="showFilter">
-        <div class="filter_section_wrapper">
-            <ng-container *ngFor="let facet of getKeys(facets)">
-                <div *ngIf="(facets[facet].length > 0 || facet !== 'Topics')" class="filter_section">
-                    <div class="filter_header">
-                        <span class="facet_name">{{removeUnderscore(facet)}}</span>
+<ng-container *ngIf="interfaceType > 0">
+    <div class="text_search_row">
+        <div class="filterRowText">Selected filters</div>
+        <ng-container *ngFor="let item of getKeys(selectedFacets)">
+            <ng-container *ngIf="selectedFacets[item].length > 0">
+                <div class="selectBox sB{{item}}" (click)="openSelectedFilterDropDown(item)">
+                    <div class="selectName">
+                        {{removeUnderscore(item)}}
+                        <i class="material-icons">
+                            keyboard_arrow_down
+                        </i>
                     </div>
-                    <div class="filter_checkbox">
-                        <ng-container *ngFor="let facet_item of facets[facet].items">
-                            <input (change)="facetClick($event,facet,facet_item.key)" type="checkbox" [attr.name]="facet_item.key"
-                                [attr.value]="facet_item.key" [checked]="isChecked(facet,facet_item.key)">{{facet_item.key}} ({{facet_item.doc_count | thousandSuff
-                            }})<br>
+                    <div class="selectItems sB{{item}}" (click)="$event.stopPropagation()">
+                        <ng-container *ngFor="let value of selectedFacets[item]">
+                            <div class="selectItem">
+                                <div class="itemText">
+                                    {{value}}
+                                </div>
+                                <div class="itemRemove" (click)="removeFilter(item,value)">
+                                    <i class="material-icons">close</i>
+                                </div>
+                            </div>
                         </ng-container>
                     </div>
-                    <div class="moreFacetDiv">
-                        <a class="moreFacetLink" (click)="getMoreFacetItems(facet)" title="Open Top 50 {{removeUnderscore(facet)}}">...more</a>
-                    </div>
-                    
                 </div>
             </ng-container>
-        </div>
-        <div [attr.title]="!showFilter? 'Open filters' : 'Close filters' " (click)="showFilter = !showFilter" class="filter_button">
-            <i class="material-icons">{{showFilter? 'close' : 'filter_list' }}</i>
-        </div>
-    </div>
-    <div class="explore_section">
-        <ng-container *ngIf="nodes.length > 0">
-            <div [class.hidden]="resultPageToggle" class="find_node_wrap">
-                <div class="searchBoxAndTopicList">
-                    <input type="text" (focus)="toggleTopicList()" (blur)="delayToggleTopicList()" class="search_box"
-                        [(ngModel)]="topicNodeInput" placeholder="Find node" />
-                    <div *ngIf="showTopicList" class="topicListWrapper">
-                        <div class="topicsList" *ngFor="let topic of filterByTopicInput()" (click)="centerTopic(topic); toggleTopicList();"
-                            [innerHtml]="topic"></div>
-                    </div>
-                </div>
-            </div>
-            <app-concept-graph *ngIf="resultPageToggle" [data]="mltResults" (docIdClicked)="openDoc($event, false)"></app-concept-graph>
-            <graph [class.hidden]="resultPageToggle" [nodes]="nodes" [links]="links" [oldNodes]="oldNodes" (nodesChanged)="setNodes($event)" (linkClicked)="openConnectingTopics($event)" (nodeClicked)="openLinks($event)"></graph>
         </ng-container>
     </div>
-    <div class="results_section">
-        <div [class.docOpened]="resultPageToggle" class="result_page">
-            <div class="results_section_wrapper">
-                <div class="results_section_inner_wrapper">
-                    <div class="result" *ngFor="let doc of docResults | paginate: { itemsPerPage: 10, currentPage: currentPage, totalItems: totalDocs }">
-                        <div class="imgPreview">
-                            <img *ngIf="doc._source['thumbnail']" [src]="doc._source['thumbnail']" ALIGN="left" />
-                            <img class="oLImg" ALIGN="left" *ngIf="!doc._source['thumbnail'] && doc._source['ISBN']" src="http://covers.openlibrary.org/b/isbn/{{doc._source['ISBN'][0]}}-M.jpg" alt="" />
+
+    <div class="main_wrapper">
+        <div *ngIf="!resultPageToggle" class="filter_sections" [class.textual]="interfaceType == 1" [class.showFilter]="showFilter || interfaceType == 1">
+            <div class="filter_section_wrapper">
+                <ng-container *ngFor="let facet of getKeys(facets)">
+                    <div class="filter_section">
+                        <div class="filter_header">
+                            <span class="facet_name">{{removeUnderscore(facet)}}</span>
                         </div>
-                        <div class="result_content">
-                                <div class="result_title" (click)="openDoc(doc._id, true)" [innerHtml]="doc._source['Uniform Title'] || doc._source['Main Title']"></div>
+                        <div class="filter_checkbox">
+                            <ng-container *ngFor="let facet_item of facets[facet].items">
+                                <input (change)="facetClick($event,facet,facet_item.key)" type="checkbox" [attr.name]="facet_item.key"
+                                    [attr.value]="facet_item.key" [checked]="isChecked(facet,facet_item.key)">{{facet_item.key}}
+                                ({{facet_item.doc_count | thousandSuff
+                                }})<br>
+                            </ng-container>
+                        </div>
+                        <div class="moreFacetDiv">
+                            <a class="moreFacetLink" (click)="getMoreFacetItems(facet)" title="Open Top 50 {{removeUnderscore(facet)}}">...more</a>
+                        </div>
+
+                    </div>
+                </ng-container>
+            </div>
+            <div *ngIf="!resultPageToggle && interfaceType == 2" [attr.title]="!showFilter? 'Open filters' : 'Close filters' "
+                (click)="showFilter = !showFilter" class="filter_button">
+                <i class="material-icons">{{showFilter? 'close' : 'filter_list' }}</i>
+            </div>
+        </div>
+        <div *ngIf="interfaceType == 2" class="explore_section">
+            <ng-container *ngIf="nodes.length > 0">
+                <div [class.hidden]="resultPageToggle" class="find_node_wrap">
+                    <div class="searchBoxAndTopicList">
+                        <input type="text" (focus)="toggleTopicList()" (blur)="delayToggleTopicList()" class="search_box"
+                            [(ngModel)]="topicNodeInput" placeholder="Find node" />
+                        <div *ngIf="showTopicList" class="topicListWrapper">
+                            <div class="topicsList" *ngFor="let topic of filterByTopicInput()" (click)="centerTopic(topic); toggleTopicList();"
+                                [innerHtml]="topic"></div>
+                        </div>
+                    </div>
+                </div>
+                <app-concept-graph *ngIf="resultPageToggle" [data]="mltResults" (docIdClicked)="openDoc($event, false)"></app-concept-graph>
+                <graph [class.hidden]="resultPageToggle" [nodes]="nodes" [links]="links" [oldNodes]="oldNodes"
+                    (nodesChanged)="setNodes($event)" (linkClicked)="openConnectingTopics($event)" (nodeClicked)="openLinks($event)"></graph>
+            </ng-container>
+        </div>
+        <div class="results_section" [class.textual]="interfaceType == 1">
+            <div [class.docOpened]="resultPageToggle" class="result_page">
+                <div class="results_section_wrapper">
+                    <div class="results_section_inner_wrapper">
+                        <div class="result" *ngFor="let doc of docResults | paginate: { itemsPerPage: 10, currentPage: currentPage, totalItems: totalDocs }">
+                            <div class="imgPreview">
+                                <img *ngIf="doc._source['thumbnail']" [src]="doc._source['thumbnail']" ALIGN="left" />
+                                <img class="oLImg" ALIGN="left" *ngIf="!doc._source['thumbnail'] && doc._source['ISBN']"
+                                    src="http://covers.openlibrary.org/b/isbn/{{doc._source['ISBN'][0]}}-M.jpg" alt="" />
+                            </div>
+                            <div class="result_content">
+                                <div class="result_title" (click)="openDoc(doc._id, true)">
+                                    <i *ngIf="activeTask" class="material-icons bookmark" [class.active]="itemInBookmark(doc._id)" (click)="editSessionDoc(doc._id, $event)">star_rate</i>
+                                    {{doc._source['Uniform Title'] || doc._source['Main Title']}}
+                                </div>
                                 <div *ngIf="doc._source['Description']" class="result_description">
                                     <div class="result_clamp" [innerHtml]="limitText(doc._source['Description'])"></div>
                                 </div>
                                 <div *ngIf="doc._source['Contributors']" class="result_year result_contributors">
-                                    <a class="result_links" *ngFor="let name of doc._source['Contributors']" (click)="openDocsBySingleFacet('Contributors',name)" [innerHtml]="name"></a>
+                                    <a class="result_links" *ngFor="let name of doc._source['Contributors']" (click)="openDocsBySingleFacet('Contributors',name)"
+                                        [innerHtml]="name"></a>
                                 </div>
                                 <div *ngIf="doc._source['Subjects']" class="result_year">
                                     <div class="result_subject">
                                         <a class="result_links" *ngFor="let subject of getUnique(doc._source['Subjects'])"
-                                        (click)="openDocsBySingleFacet('Subjects',subject)" [innerHtml]="subject"></a>
+                                            (click)="openDocsBySingleFacet('Subjects',subject)" [innerHtml]="subject"></a>
                                     </div>
                                 </div>
                                 <div *ngIf="doc._source['Topics']" class="result_year result_topic">
-                                    <a class="result_links" *ngFor="let topic of doc._source['Topics']" (click)="openDocsBySingleFacet('Topics',topic)" [innerHtml]="topic"></a>
+                                    <a class="result_links" *ngFor="let topic of doc._source['Topics']" (click)="openDocsBySingleFacet('Topics',topic)"
+                                        [innerHtml]="topic"></a>
                                 </div>
+                            </div>
+                            <div class="clearfix"></div>
                         </div>
-                        <div class="clearfix"></div>
                     </div>
                 </div>
+                <pagination-controls class="results-pagination" *ngIf="totalDocs > 10" maxSize="5" (pageChange)="paginateClick($event)"></pagination-controls>
             </div>
-            <pagination-controls class="results-pagination" *ngIf="totalDocs > 10" maxSize="5" (pageChange)="paginateClick($event)"></pagination-controls>
-        </div>
-        <div *ngIf="docResults.length == 0">
-            Information:<br>
-            Search for an item in the search box to find matched documents. <br>
-            Select nodes to find documents within that topic. <br>
-            Click on Filter icon to filter your results<br>
-            Use find node input to center the graph to that node. <br>
-
-        </div>
-        <div [class.docOpened]="resultPageToggle" class="doc_page">
-            <app-doc-page *ngIf="openedDoc" (back)="goBackToDocs()" [doc]="openedDoc"></app-doc-page>
+            <div *ngIf="docResults.length == 0">
+                <ng-container *ngIf="interfaceType == 2">
+                    Information:<br>
+                    Search for an item in the search box to find matched documents. <br>
+                    Select nodes to find documents within that topic. <br>
+                    Click on Filter icon to filter your results<br>
+                    Use find node input to center the graph to that node. <br>
+                </ng-container>
+            </div>
+            <div [class.docOpened]="resultPageToggle" class="doc_page">
+                <app-doc-page *ngIf="openedDoc" (back)="goBackToDocs()" [doc]="openedDoc"></app-doc-page>
+            </div>
         </div>
     </div>
-</div>
-<div class="tooltip" style="opacity: 0"></div>
-<div class="moreFacetsSection" *ngIf="showMoreFacets" (click)="showMoreFacets = false;">
-    <div class="moreFacetsWrapper" (click)="$event.stopPropagation();">
-        <ng-container *ngFor="let facet of getKeys(moreFacets)">
-            <div class="moreFacetsTitle">{{removeUnderscore(facet)}}</div>
-            <ng-container *ngFor="let facet_item of moreFacets[facet].items">
-                <div class="moreFacetsInput">
-                    <input (change)="moreFacetClick($event,facet,facet_item.key)" type="checkbox" [attr.name]="facet_item.key"
-                        [attr.value]="facet_item.key" [checked]="isChecked(facet,facet_item.key)">{{facet_item.key}} ({{facet_item.doc_count | thousandSuff}})
-                    <br>
-                </div>
+    <div class="tooltip" style="opacity: 0"></div>
+    <div class="moreFacetsSection" *ngIf="showMoreFacets" (click)="showMoreFacets = false;">
+        <div class="moreFacetsWrapper" (click)="$event.stopPropagation();">
+            <ng-container *ngFor="let facet of getKeys(moreFacets)">
+                <div class="moreFacetsTitle">{{removeUnderscore(facet)}}</div>
+                <ng-container *ngFor="let facet_item of moreFacets[facet].items">
+                    <div class="moreFacetsInput">
+                        <input (change)="moreFacetClick($event,facet,facet_item.key)" type="checkbox" [attr.name]="facet_item.key"
+                            [attr.value]="facet_item.key" [checked]="isChecked(facet,facet_item.key)">{{facet_item.key}}
+                        ({{facet_item.doc_count | thousandSuff}})
+                        <br>
+                    </div>
+                </ng-container>
             </ng-container>
-        </ng-container>
-        <div class="moreFacetsActionsRow">
-            <a (click)="addFilters()">Apply Selected Filters</a>
-            <a (click)="showMoreFacets = false;">Close</a>
+            <div class="moreFacetsActionsRow">
+                <a (click)="addFilters()">Apply Selected Filters</a>
+                <a (click)="showMoreFacets = false;">Close</a>
+            </div>
         </div>
     </div>
-</div>
+</ng-container>

@@ -12,6 +12,21 @@ interface Facets {
     Contributors?: any;
     Topics?: any;
 }
+interface SessionStore {
+    // taskCode: number;
+    interfaceType:number;
+    queryRefineCount: number;
+    graphClicks:number;
+    Topics:number;
+    Subjects:number;
+    Publication_Year: number;
+    Publisher_Name:number;
+    Contributors:number;
+    timeStart: number;
+    timeEnd:number;
+    timeTaken: number;
+    DocsPicked: string[];
+}
 @Component({
     selector: 'app-root',
     templateUrl: './app.component.html',
@@ -50,36 +65,26 @@ export class AppComponent implements OnInit {
     moreFacets: Facets = {};
     selectedMoreFacets: Facets = {};
     mltResults = [];
+
+    interfaceType = 0;
+
+    //Session related 
+    taskCode = "";
+    activeTask = "";
     getKeys(object: {}) {
         return Object.keys(object);
     }
     constructor(private es: SearchService) {
     }
     ngOnInit() {
-        this.es.makeConnections()
-            .then(response => {
-                const N = response.aggregations.nodes.buckets.length,
-                    getIndex = number => number - 1;
-                let nodes: Node[] = [];
-                this.graphResults = response.aggregations.nodes.buckets;
-                this.loadFacets(response.aggregations);
-                let max = 0;
-                this.graphResults.forEach(element => {
-                    if (element.doc_count > max) {
-                        max = element.doc_count;
-                    }
-                });
-                for (let node of this.graphResults) {
-                    nodes.push(new Node(node.key, node.doc_count, max));
-                    this.topicList.push(node.key);
-                }
-                this.nodes = nodes;
-            }, error => {
-                console.error(error);
-            }).then(() => {
-            }
-            );
-        
+
+        // Change this to fit sessions.
+        this.activeTask = window.sessionStorage.getItem("active");
+        if(this.activeTask) {
+            this.taskCode = this.activeTask;
+            this.sessionResume();
+        }
+        this.getGraphAndDocs("");        
         this.clickSubscription = this.mouseClick.subscribe((evt: MouseEvent) => {
             let element:any = evt.srcElement;
             if (element) {
@@ -101,15 +106,24 @@ export class AppComponent implements OnInit {
     loadFacets(aggs) {
         if(!(this.selectedFacets.Contributors && this.selectedFacets.Contributors.length > 0))
             this.facets.Contributors = {items : aggs.contributors_facet ? aggs.contributors_facet.buckets : [], count:aggs.contributors_facet.sum_other_doc_count || 0 };
+        if(!(this.selectedFacets.Subjects && this.selectedFacets.Subjects.length > 0))
+            this.facets.Subjects = {items: aggs.subject_facet ? aggs.subject_facet.buckets : [], count:aggs.subject_facet.sum_other_doc_count || 0 };
+        if(this.interfaceType == 1 && !(this.selectedFacets.Topics && this.selectedFacets.Topics.length > 0)){
+            let nodes = aggs.nodes;
+            this.facets.Topics = {items: nodes ? nodes.buckets.slice(0,5) : [], count:nodes.sum_other_doc_count || 0 };
+        }
         if(!(this.selectedFacets.Publisher_Name && this.selectedFacets.Publisher_Name.length > 0))
             this.facets.Publisher_Name = {items: aggs.publisher_facet ? aggs.publisher_facet.buckets : [], count:aggs.publisher_facet.sum_other_doc_count || 0};
         if(!(this.selectedFacets.Publication_Year && this.selectedFacets.Publication_Year.length > 0))
             this.facets.Publication_Year= {items: aggs.publication_year_facet ? aggs.publication_year_facet.buckets : [], count:aggs.publication_year_facet.sum_other_doc_count || 0 };
-        if(!(this.selectedFacets.Subjects && this.selectedFacets.Subjects.length > 0))
-            this.facets.Subjects = {items: aggs.subject_facet ? aggs.subject_facet.buckets : [], count:aggs.subject_facet.sum_other_doc_count || 0 };
+
+            
     }
 
     openLinks(key) {
+        if(this.interfaceType == 1){
+            return;
+        }
         let nodeIndex = this.graphResults.findIndex(function (item, i) {
             return item.key === key
         });
@@ -150,9 +164,15 @@ export class AppComponent implements OnInit {
             
             this.getResultByTopics(key, this.searchBoxText);
         }
+        //Enter Session Here
+        this.editSessionObject('graphClicks');
     }
     //getNetwork
     getGraphAndDocs(text) {
+        if(text){
+            //Enter Session Here
+            this.editSessionObject('queryRefineCount');
+        }
         this.savedSearchText = text;
         this.selectedFacets = {};
         this.getNetwork(text);
@@ -266,6 +286,8 @@ export class AppComponent implements OnInit {
         if (event.target.checked) {
             this.selectedFacets[facet] = this.selectedFacets[facet] || [];
             this.selectedFacets[facet].push(facetKey);
+            //Enter Session Here
+            this.editSessionObject(facet);
         } else {
             const facetKeyIndex = this.selectedFacets[facet].findIndex(function (item, i) {
                 return item === facetKey
@@ -284,17 +306,23 @@ export class AppComponent implements OnInit {
         this.selectedFacets[facet] = [facetKey];
         this.getNetwork(this.savedSearchText);
         this.getResultDocs(this.savedSearchText);
+        //Enter Session Here
+        this.editSessionObject(facet);
     }
     openConnectingTopics(link){
         // remove non source topic
         this.selectedFacets['Topics'].splice(1,this.selectedFacets['Topics'].length - 1);
         this.selectedFacets['Topics'].push(link.target.id);
         this.getResultDocs(this.savedSearchText);
+        //Enter Session Here
+        this.editSessionObject('graphClicks');
     }
     moreFacetClick(event, facet, facetKey){
         if (event.target.checked) {
             this.selectedMoreFacets[facet] = this.selectedMoreFacets[facet] || [];
             this.selectedMoreFacets[facet].push(facetKey);
+            //Enter Session Here
+            this.editSessionObject(facet);
         } else {
             const facetKeyIndex = this.selectedMoreFacets[facet].findIndex(function (item, i) {
                 return item === facetKey
@@ -322,6 +350,7 @@ export class AppComponent implements OnInit {
         this.es.getDocument(id)
             .then(response => {
                 this.openedDoc = response._source;
+                this.openedDoc["_id"] = response._id;
                 this.resultPageToggle = true;
             }, error => {
                 console.error(error);
@@ -487,5 +516,126 @@ export class AppComponent implements OnInit {
     setNodes(nodes){
         //this.oldNodes = this.nodes;
         this.nodes = nodes;
+    }
+    textualInterface() {
+        this.interfaceType = 1;
+        this.clearVariables();
+        this.getGraphAndDocs(this.savedSearchText);        
+    }
+    graphicalInterface() {
+        this.interfaceType = 2;
+        this.clearVariables();
+        this.getGraphAndDocs(this.savedSearchText);
+    }
+    clearVariables() {
+        this.nodes = [];
+        this.links = [];
+        this.oldNodes = [];
+        this.docResults = [];
+        this.facets = {};
+        this.selectedFacets = {};
+        this.searchBoxText = "";
+        this.savedSearchText = "";
+    }
+    initializeSession():SessionStore {
+        let storeObj: SessionStore =  {
+            interfaceType: this.interfaceType,
+            queryRefineCount: 0,
+            graphClicks:0,
+            Topics:0,
+            Subjects:0,
+            Publication_Year: 0,
+            Publisher_Name:0,
+            Contributors:0,
+            timeStart: new Date().getTime(),
+            timeEnd:0,
+            timeTaken: 0,
+            DocsPicked: []
+        }
+        return storeObj;
+    }
+    sessionStart() {
+        if(!this.taskCode) return;
+        if(this.taskCode == 'T') {
+            this.textualInterface();
+            return;
+        }
+        if(this.taskCode == 'V') {
+            this.graphicalInterface();
+            return;
+        }
+        if(this.taskCode.startsWith('t')){
+            this.textualInterface();
+        } else if(this.taskCode.startsWith('v')){
+            this.graphicalInterface();
+        }
+        if(window.sessionStorage.getItem(this.taskCode)){
+            alert("This task is already done.");
+            return;
+        }
+        let storeObj = this.initializeSession();
+        window.sessionStorage.setItem("active",this.taskCode);
+        window.sessionStorage.setItem(this.taskCode,JSON.stringify(storeObj));
+        this.activeTask = this.taskCode;
+    }
+    sessionResume(){
+        if(this.activeTask.startsWith('t')){
+            this.textualInterface();
+        } else if(this.activeTask.startsWith('v')){
+            this.graphicalInterface();
+        }
+    }
+    sessionEnd() {
+        let activeTask = window.sessionStorage.getItem("active");
+        if(activeTask){
+            let storeObj = JSON.parse(window.sessionStorage.getItem(activeTask));
+            storeObj.timeEnd = new Date().getTime();
+            storeObj.timeTaken = storeObj.timeEnd - storeObj.timeStart;
+            window.sessionStorage.setItem(activeTask,JSON.stringify(storeObj));
+            window.sessionStorage.removeItem("active");
+            this.activeTask = null;
+            this.taskCode = "";
+        }
+        
+    }
+    getSessionObject(){
+        let activeTask = window.sessionStorage.getItem("active");
+        if(activeTask){
+            let storeObj = JSON.parse(window.sessionStorage.getItem(activeTask));
+            return storeObj;
+        }
+        return null;
+    }
+    editSessionObject(field) {
+        let activeTask = window.sessionStorage.getItem("active");
+        if(activeTask){
+            let storeObj = JSON.parse(window.sessionStorage.getItem(activeTask));
+            storeObj[field] += 1;
+            window.sessionStorage.setItem(activeTask,JSON.stringify(storeObj));
+        }
+    }
+    itemInBookmark(id:string){
+        let activeTask = window.sessionStorage.getItem("active");
+        if(activeTask){
+            let storeObj:SessionStore = JSON.parse(window.sessionStorage.getItem(activeTask));
+            if(storeObj.DocsPicked.indexOf(id) > -1){
+                return true;
+            }
+        }
+        return false;
+    }
+    editSessionDoc(id:string, event:any){
+        event.stopPropagation();
+        let activeTask = window.sessionStorage.getItem("active");
+        if(activeTask){
+            let storeObj:SessionStore = JSON.parse(window.sessionStorage.getItem(activeTask));
+            let index = storeObj.DocsPicked.indexOf(id);
+            if(index > -1){
+                storeObj.DocsPicked.splice(index,1);
+            } else {
+                storeObj.DocsPicked.push(id);
+            }
+            window.sessionStorage.setItem(activeTask,JSON.stringify(storeObj));
+        }
     }
 }

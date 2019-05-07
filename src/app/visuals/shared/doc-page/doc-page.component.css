@@ -21,6 +21,14 @@
     /* border-bottom: solid 0.5px #cecece; */
     padding: 0 0 5px 0;
 }
+.bookmark {
+    width:20px;
+    vertical-align: bottom;
+    color: grey;
+}
+.bookmark.active {
+    color: cornflowerblue;
+}
 span.detailValue {
     padding-left: 10px;
     width:100%;

@@ -33,7 +33,7 @@ export class Node implements d3.SimulationNodeDatum {
   }
   get fontSize():string {
     if(this.linkCount > 0 && this.maxDocCount > 0){
-      //return (20 * this.normal() + 10) + 'px';
+      //return (20 * this.normal() + 15) + 'px';
       return '15px';
     } 
     return '0px';
@@ -43,12 +43,12 @@ export class Node implements d3.SimulationNodeDatum {
   }
 
   get color() {
-    // return COLORMAP.get(this.id)
-    if(this.linkCount > 0 && this.maxDocCount > 0){
-      let index = Math.floor(APP_CONFIG.SPECTRUM.length * this.normal());
-      return APP_CONFIG.SPECTRUM[index];
-    } 
-    return "#0000";
+    return COLORMAP.get(this.id)
+    // if(this.linkCount > 0 && this.maxDocCount > 0){
+    //   let index = Math.floor(APP_CONFIG.SPECTRUM.length * this.normal());
+    //   return APP_CONFIG.SPECTRUM[index];
+    // } 
+    // return "#0000";
   }
   set color(c) {
     this.color = c;

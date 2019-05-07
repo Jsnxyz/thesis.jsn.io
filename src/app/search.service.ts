@@ -37,7 +37,7 @@ export class SearchService {
         "aggs" : {
             "facets": {
                 "terms" : {
-                    "size" : 50
+                    "size" : 100
                 }
             }
         }
@@ -94,7 +94,7 @@ export class SearchService {
     }
 
     private connect() {
-        let host = `35.204.183.75:9200`;
+        let host = `34.90.119.30:9200`;
 
         this.client = new Client({
             host,
@@ -167,6 +167,7 @@ export class SearchService {
         query.query.bool.must.push({
             "multi_match": {
                 "query": text,
+                "minimum_should_match": "70%",
                 "fields": [
                     "Creator^2",
                     "Title^4",
@@ -285,18 +286,60 @@ export class SearchService {
     }
     getDocuments(text,facets?:any,pageNo = 1, loadFacets = false) {
         let query;
+        let ifOnlyTopicSelected = true;
+        for(let facetKey in facets){
+            if(facetKey !== "Topics" && facets[facetKey].length > 0) {
+                ifOnlyTopicSelected = false;
+            }
+        }
         if(text){
             query = this.getDocsQuery(text);
+            ifOnlyTopicSelected = false;
         } else {
-            query = this.getSkeletonQuery();
+            query = this.getSkeletonQuery();            
+        }
+        if(ifOnlyTopicSelected){
+            if(facets["Topics"] && ifOnlyTopicSelected){
+                let topicString = Array(facets["Topics"]).toString().replace(","," "); 
+                query['rescore'] = {
+                    "window_size": 50, 
+                    "query": {         
+                        "rescore_query": {
+                            "multi_match": {
+                                "query": topicString,
+                                "fields": [
+                                    "Creator^2",
+                                    "Title^4",
+                                    "Description",
+                                    "ISBN",
+                                    "ISSN",
+                                    "Publisher^2",
+                                    "Serial Title",
+                                    "Series^3",
+                                    "Subjects^2"
+                                ],
+                                "minimum_should_match": "70%"
+                            }
+                        }
+                    }
+                }
+            }
         }
         if(loadFacets){
             query["aggs"] = this.network_facet_query.aggs;
         }
-        let facet_query = this.loadFacetsToQuery(facets);
-        for(let facet of facet_query){
-            query["query"]["bool"]["must"].push(facet);
+        if(!ifOnlyTopicSelected){
+            let facet_query = this.loadFacetsToQuery(facets);
+            for(let facet of facet_query){
+                query["query"]["bool"]["must"].push(facet);
+            }
+        } else if(facets["Topics"]) {
+            query["query"]["bool"]["must"] = [];
+            for(let value of facets["Topics"]){
+                query["query"]["bool"]["must"].push({term: {"Topics.keyword": value}});
+            }
         }
+        
         console.log(JSON.stringify(query));
         return this.client.search({
             index: "bib-index",
@@ -322,6 +365,7 @@ export class SearchService {
                     "size" : 20,
                      "query": {
                          "more_like_this" : {
+                             "fields": ["Title", "Description", "Series", "Uniform Title", "Creator", "Contributors", "Subjects"],
                              "like" : [
                              {
                                  "_index" : "bib-index",

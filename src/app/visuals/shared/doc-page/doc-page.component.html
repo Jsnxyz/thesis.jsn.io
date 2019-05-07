@@ -1,4 +1,5 @@
 <div class="backButton" (click)="backClicked()">Back</div>
+<i *ngIf="activeTask" class="material-icons bookmark" [class.active]="itemInBookmark(doc._id)" (click)="editSessionDoc(doc._id, $event)">star_rate</i>
 <div class="detailsSection" *ngFor="let details of docformatted | mapValues">
     <div class="detailsHeader">{{details.key}}</div>
     <div class="detailSection" *ngFor="let detail of details.val | mapValues">

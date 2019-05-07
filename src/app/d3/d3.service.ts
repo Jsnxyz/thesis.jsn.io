@@ -19,6 +19,7 @@ export class D3Service {
         zoomed = () => {
             const transform = d3.event.transform;
             container.attr('transform', 'translate(' + transform.x + ',' + transform.y + ') scale(' + transform.k + ')');
+            container.selectAll('.node-name').attr("transform", "scale(" + 1/(transform.k*1.2) + ")");
         }
 
         zoom = d3.zoom().scaleExtent([0.2, 7]).on('zoom', zoomed);
