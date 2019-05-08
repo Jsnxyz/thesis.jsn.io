@@ -341,7 +341,7 @@ export class SearchService {
         return this.client.search({
             index: "bib-index",
             type: "bib-type",
-            _source: "Title,Uniform Title,Main Title,Contributors,Description,Subjects,Topics,thumbnail,ISBN",
+            _source: "Publication Year,Title,Uniform Title,Main Title,Contributors,Description,Subjects,Topics,thumbnail,ISBN",
             from: (pageNo - 1) * 10,
             body: query
         });

@@ -104,6 +104,10 @@
                                 <div *ngIf="doc._source['Description']" class="result_description">
                                     <div class="result_clamp" [innerHtml]="limitText(doc._source['Description'])"></div>
                                 </div>
+                                <div *ngIf="doc._source['Publication Year']" class="result_year result_pubyear">
+                                        <a class="result_links" *ngFor="let name of doc._source['Publication Year']" (click)="openDocsBySingleFacet('Publication Year',name)"
+                                            [innerHtml]="name"></a>
+                                </div>
                                 <div *ngIf="doc._source['Contributors']" class="result_year result_contributors">
                                     <a class="result_links" *ngFor="let name of doc._source['Contributors']" (click)="openDocsBySingleFacet('Contributors',name)"
                                         [innerHtml]="name"></a>

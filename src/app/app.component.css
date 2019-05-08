@@ -222,6 +222,11 @@ text {
     font-size: 12px;
     color: cornflowerblue;
 }
+.result_pubyear::before{
+    content: 'Publication Year: ';
+    font-size: 12px;
+    color: cornflowerblue;
+}
 .result_topic::before{
     content: 'Topics: ';
     font-size: 12px;
