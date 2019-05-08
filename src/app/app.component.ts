@@ -17,6 +17,7 @@ interface SessionStore {
     interfaceType:number;
     queryRefineCount: number;
     graphClicks:number;
+    conceptGraphClicks:number;
     Topics:number;
     Subjects:number;
     Publication_Year: number;
@@ -177,6 +178,7 @@ export class AppComponent implements OnInit {
         this.selectedFacets = {};
         this.getNetwork(text);
         this.getResultDocs(text);
+        this.resultPageToggle = false;
     }
     getNetwork(text) {
         this.links = [];
@@ -300,8 +302,6 @@ export class AppComponent implements OnInit {
     }
     openDocsBySingleFacet(facet, facetKey) {
         // Reset searchText, load facets, and change selectedFacet as the given params. And then search. 
-        this.searchBoxText = "";
-        this.savedSearchText = "";
         this.selectedFacets = {};
         this.selectedFacets[facet] = [facetKey];
         this.getNetwork(this.savedSearchText);
@@ -542,6 +542,7 @@ export class AppComponent implements OnInit {
             interfaceType: this.interfaceType,
             queryRefineCount: 0,
             graphClicks:0,
+            conceptGraphClicks: 0,
             Topics:0,
             Subjects:0,
             Publication_Year: 0,
@@ -590,7 +591,7 @@ export class AppComponent implements OnInit {
         if(activeTask){
             let storeObj = JSON.parse(window.sessionStorage.getItem(activeTask));
             storeObj.timeEnd = new Date().getTime();
-            storeObj.timeTaken = storeObj.timeEnd - storeObj.timeStart;
+            storeObj.timeTaken = (storeObj.timeEnd - storeObj.timeStart)/1000;
             window.sessionStorage.setItem(activeTask,JSON.stringify(storeObj));
             window.sessionStorage.removeItem("active");
             this.activeTask = null;
@@ -623,6 +624,9 @@ export class AppComponent implements OnInit {
             }
         }
         return false;
+    }
+    conceptClickLog() {
+        this.editSessionObject('conceptGraphClicks');
     }
     editSessionDoc(id:string, event:any){
         event.stopPropagation();

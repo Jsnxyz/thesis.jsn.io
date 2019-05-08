@@ -167,7 +167,7 @@ export class SearchService {
         query.query.bool.must.push({
             "multi_match": {
                 "query": text,
-                "minimum_should_match": "70%",
+                "minimum_should_match": "80%",
                 "fields": [
                     "Creator^2",
                     "Title^4",
@@ -273,7 +273,11 @@ export class SearchService {
                 continue;
             }
             let facetName = this.removeUnderscore(facet);
-            if(facets[facet].length > 0){
+            if(facetName == 'Topics' && facets[facet].length > 0){
+                for(let value of facets["Topics"]){
+                    facet_arr.push({term: {"Topics.keyword": value}});
+                }
+            } else if(facets[facet].length > 0){
                 let term = { terms : {}};
                 term.terms[facetName + ".keyword"] = facets[facet];
                 facet_arr.push(term);
@@ -318,7 +322,7 @@ export class SearchService {
                                     "Series^3",
                                     "Subjects^2"
                                 ],
-                                "minimum_should_match": "70%"
+                                "minimum_should_match": "80%"
                             }
                         }
                     }
@@ -328,23 +332,16 @@ export class SearchService {
         if(loadFacets){
             query["aggs"] = this.network_facet_query.aggs;
         }
-        if(!ifOnlyTopicSelected){
-            let facet_query = this.loadFacetsToQuery(facets);
-            for(let facet of facet_query){
-                query["query"]["bool"]["must"].push(facet);
-            }
-        } else if(facets["Topics"]) {
-            query["query"]["bool"]["must"] = [];
-            for(let value of facets["Topics"]){
-                query["query"]["bool"]["must"].push({term: {"Topics.keyword": value}});
-            }
+        let facet_query = this.loadFacetsToQuery(facets);
+        for(let facet of facet_query){
+            query["query"]["bool"]["must"].push(facet);
         }
         
         console.log(JSON.stringify(query));
         return this.client.search({
             index: "bib-index",
             type: "bib-type",
-            _source: "Uniform Title,Main Title,Contributors,Description,Subjects,Topics,thumbnail,ISBN",
+            _source: "Title,Uniform Title,Main Title,Contributors,Description,Subjects,Topics,thumbnail,ISBN",
             from: (pageNo - 1) * 10,
             body: query
         });

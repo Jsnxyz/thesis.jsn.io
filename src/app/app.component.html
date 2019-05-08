@@ -1,7 +1,7 @@
 <div class="header">
     <div class="search_field_wrap">
         <div class="sessionWrap">
-            <input [(ngModel)]="taskCode" type="text" placeholder="Task Code" />
+            <input [disabled]="activeTask" [(ngModel)]="taskCode" type="text" placeholder="Task Code" />
             <button [disabled]="activeTask" (click)="sessionStart()">Start</button>
             <button (click)="sessionEnd()">End</button>
         </div>
@@ -81,7 +81,7 @@
                         </div>
                     </div>
                 </div>
-                <app-concept-graph *ngIf="resultPageToggle" [data]="mltResults" (docIdClicked)="openDoc($event, false)"></app-concept-graph>
+                <app-concept-graph *ngIf="resultPageToggle" [data]="mltResults" (docIdClicked)="conceptClickLog();openDoc($event, false)"></app-concept-graph>
                 <graph [class.hidden]="resultPageToggle" [nodes]="nodes" [links]="links" [oldNodes]="oldNodes"
                     (nodesChanged)="setNodes($event)" (linkClicked)="openConnectingTopics($event)" (nodeClicked)="openLinks($event)"></graph>
             </ng-container>
@@ -99,7 +99,7 @@
                             <div class="result_content">
                                 <div class="result_title" (click)="openDoc(doc._id, true)">
                                     <i *ngIf="activeTask" class="material-icons bookmark" [class.active]="itemInBookmark(doc._id)" (click)="editSessionDoc(doc._id, $event)">star_rate</i>
-                                    {{doc._source['Uniform Title'] || doc._source['Main Title']}}
+                                    {{doc._source['Title'][0] || doc._source['Uniform Title'] || doc._source['Main Title']}}
                                 </div>
                                 <div *ngIf="doc._source['Description']" class="result_description">
                                     <div class="result_clamp" [innerHtml]="limitText(doc._source['Description'])"></div>
