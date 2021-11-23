@@ -356,9 +356,6 @@ export class AppComponent implements OnInit {
     getMLT(id){
         this.es.getMLTById(id).then(response => {
             let results = response.hits.hits;
-            let nodes:Node[] = [];
-            let links:Link[] = [];
-            let topics = {};
             let arr = [];
             // Creates Nodes
             for(let i = 0; i < results.length ; i++) {

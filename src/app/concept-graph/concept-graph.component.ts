@@ -3,7 +3,7 @@ import * as d3 from 'd3';
 @Component({
     selector: 'app-concept-graph',
     template: `
-    <div class="concept-graph"></div>
+    <div class="concept-graph"><p *ngIf="data.length == 0">No similar documents</p></div>
   `,
     styleUrls: ['./concept-graph.component.css']
 })

@@ -36,25 +36,25 @@ export class SearchService {
             "subject_facet": {
                 "terms": {
                     "field": "Subjects.keyword",
-                    "size": 5
+                    "size": 6
                 }
             },
             "contributors_facet": {
                 "terms": {
                     "field": "Contributors.keyword",
-                    "size": 5
+                    "size": 6
                 }
             },
             "publication_year_facet": {
                 "terms": {
-                    "field": "Publication Year.keyword",
-                    "size": 5
+                    "field": "Publication Year",
+                    "size": 6
                 }
             },
             "publisher_facet": {
                 "terms": {
                     "field": "Publisher Name.keyword",
-                    "size": 5
+                    "size": 6
                 }
             },
             "nodes": {
@@ -187,14 +187,13 @@ export class SearchService {
         }
         query["size"] = 0;
         query["aggs"] = this.more_facet_query.aggs;
-        query["aggs"]["facets"]["terms"]["field"] = facetName + ".keyword";
+        query["aggs"]["facets"]["terms"]["field"] = !facetName.startsWith("Publication Y") ? facetName + ".keyword" : facetName;
         let facet_query = this.loadFacetsToQuery(facets, facetName);
         for(let facet of facet_query){
             query["query"]["bool"]["must"].push(facet);
         }
         return this.client.search({
             index: "bib-index",
-            type: "bib-type",
             body: query
         });
     }
@@ -247,7 +246,10 @@ export class SearchService {
                 }
             } else if(facets[facet].length > 0){
                 let term = { terms : {}};
-                term.terms[facetName + ".keyword"] = facets[facet];
+                if(!facetName.startsWith("Publication "))
+                    term.terms[facetName + ".keyword"] = facets[facet];
+                else 
+                    term.terms[facetName] = facets[facet];
                 facet_arr.push(term);
             }
         }
@@ -330,7 +332,6 @@ export class SearchService {
                              "like" : [
                              {
                                  "_index" : "bib-index",
-                                 "_type" : "bib-type",
                                  "_id" : id
                              }
                             ],

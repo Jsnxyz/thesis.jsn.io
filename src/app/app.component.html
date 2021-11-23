@@ -45,7 +45,7 @@
         <div *ngIf="!resultPageToggle" class="filter_sections" [class.textual]="interfaceType == 1" [class.showFilter]="showFilter || interfaceType == 1">
             <div class="filter_section_wrapper">
                 <ng-container *ngFor="let facet of getKeys(facets)">
-                    <div class="filter_section">
+                    <div *ngIf="facets[facet].items.length > 0" class="filter_section">
                         <div class="filter_header">
                             <span class="facet_name">{{removeUnderscore(facet)}}</span>
                         </div>
@@ -57,7 +57,7 @@
                                 }})<br>
                             </ng-container>
                         </div>
-                        <div class="moreFacetDiv">
+                        <div *ngIf="facets[facet].items.length > 5" class="moreFacetDiv">
                             <a class="moreFacetLink" (click)="getMoreFacetItems(facet)" title="Open Top 50 {{removeUnderscore(facet)}}">...more</a>
                         </div>
 
