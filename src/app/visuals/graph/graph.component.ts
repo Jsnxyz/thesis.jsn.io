@@ -126,7 +126,6 @@ export class GraphComponent implements OnInit, OnChanges {
     }
     openLinks(key, event) {
         if (event.ctrlKey) {
-            console.log("Ctrl Clicked");
             return;
         }
         this.nodeClicked.emit(key);

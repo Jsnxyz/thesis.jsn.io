@@ -158,9 +158,6 @@ export class AppComponent implements OnInit {
             this.nodes = newNodes;            
             setTimeout(() => {
                 this.links = links;
-                // setTimeout(() => {
-                //     this.centerTopic(key);
-                // },1000)
             },1000)
             
             this.getResultByTopics(key, this.searchBoxText);
@@ -252,7 +249,6 @@ export class AppComponent implements OnInit {
         this.es.getDocuments(text, this.selectedFacets,pageNo)
             .then(response => {
                 this.docResults = response.hits.hits;
-                console.log(this.docResults[0])
                 this.totalDocs = response.hits.total;
             }, error => {
                 console.error(error);
@@ -371,40 +367,18 @@ export class AppComponent implements OnInit {
                 if(results[i]._source["Main Title"]) 
                     outerArray.push(results[i]._source["Main Title"][0]);
                 else {
-                    // let t = "";
-                    // for(let j=0;j<results[i]._source["Title"][0].length; j++)
-                    //     t = t + results[i]._source["Title"][0][j] + " ";
                     outerArray.push(results[i]._source["Title"][0]);
                 }
                     
                 for(let topic of results[i]._source.Topics){
-                    //topics.push({key: topic, edges:[]});
-                    // if(topics[topic]){
-                    //     topics[topic].edges = [...topics[topic]["edges"], ...results[i]._source["Main Title"][0]];
-                    // } else {
-                    //     topics[topic] = {edges : [results[i]._source["Main Title"][0]]}
-                    // }
                     innerArray.push(topic);
                     
                 }
                 outerArray.push(innerArray);
                 outerArray.push(results[i]._id);
                 arr.push(outerArray);
-                // topics[results[i]._source["Main Title"][0]] = {};
                 
             }
-            // for(let topic of this.getKeys(topics)){
-            //     if(topics[topic].edges && topics[topic].edges.length > 0){
-            //         for(let edge of topics[topic].edges) {
-            //             links.push(new Link(topic,edge,1,1))
-            //         }
-            //     }
-            //     nodes.push(new Node(topic,1,1));
-            // }
-            // this.nodes = nodes;
-            // this.links = links;
-            //topics = this.toUnique(topics);
-            console.log(arr);
             this.mltResults = arr;
         }, error => {
 
@@ -447,23 +421,18 @@ export class AppComponent implements OnInit {
         
         let svg = d3.select(svgElement);
         let container = d3.select(containerElement);
-        
-
-        
-        //container.attr('transform', 'translate(' + x + ',' + y + ') scale(' + t.k  + ')');
-        
-            const t = d3.zoomTransform(graph.node());
-            let x = -Number(node.x);
-            let y = -Number(node.y);
-            x = x * t.k + (svgElement.clientWidth / 2);
-            y = y * t.k + (svgElement.clientHeight / 2);
-            let zoomed = () => {
-                if(d3.event.transform != null) {
-                    container.attr("transform", d3.event.transform );
-                }
+        const t = d3.zoomTransform(graph.node());
+        let x = -Number(node.x);
+        let y = -Number(node.y);
+        x = x * t.k + (svgElement.clientWidth / 2);
+        y = y * t.k + (svgElement.clientHeight / 2);
+        let zoomed = () => {
+            if(d3.event.transform != null) {
+                container.attr("transform", d3.event.transform );
             }
+        }
     
-            let zoom = d3.zoom().on('zoom', zoomed);
+        let zoom = d3.zoom().on('zoom', zoomed);
         svg.transition().duration(750).call( zoom.transform, d3.zoomIdentity.translate(x,y).scale(t.k) );
     }
     getMoreFacetItems(facet) {
@@ -514,7 +483,6 @@ export class AppComponent implements OnInit {
         this.getResultDocs(this.savedSearchText);
     }
     setNodes(nodes){
-        //this.oldNodes = this.nodes;
         this.nodes = nodes;
     }
     textualInterface() {

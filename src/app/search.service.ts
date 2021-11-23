@@ -192,7 +192,6 @@ export class SearchService {
         for(let facet of facet_query){
             query["query"]["bool"]["must"].push(facet);
         }
-        console.log(JSON.stringify(query));
         return this.client.search({
             index: "bib-index",
             type: "bib-type",
@@ -212,7 +211,6 @@ export class SearchService {
         for(let facet of facet_query){
             query["query"]["bool"]["must"].push(facet);
         }
-        console.log(JSON.stringify(query));
         return this.client.search({
             index: "bib-index",
             body: query
@@ -231,7 +229,6 @@ export class SearchService {
         for(let facet of facet_query){
             query["query"]["bool"]["must"].push(facet);
         }
-        console.log(JSON.stringify(query));
         return this.client.search({
             index: "bib-index",
             body: query
@@ -308,7 +305,6 @@ export class SearchService {
             query["query"]["bool"]["must"].push(facet);
         }
         
-        console.log(JSON.stringify(query));
         return this.client.search({
             index: "bib-index",
             _source: "Publication Year,Title,Uniform Title,Main Title,Contributors,Description,Subjects,Topics,thumbnail,ISBN",

@@ -42,7 +42,6 @@ export class DocPageComponent implements OnInit {
                 this.docformatted.set(details, innerMap);
             }
         }
-        console.log("docformatted", this.docformatted);
     }
     
     backClicked(){

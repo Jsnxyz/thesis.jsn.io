@@ -94,7 +94,7 @@
                             <div class="imgPreview">
                                 <img *ngIf="doc._source['thumbnail']" [src]="doc._source['thumbnail']" ALIGN="left" />
                                 <img class="oLImg" ALIGN="left" *ngIf="!doc._source['thumbnail'] && doc._source['ISBN']"
-                                    src="http://covers.openlibrary.org/b/isbn/{{doc._source['ISBN'][0]}}-M.jpg" alt="" />
+                                    src="https://covers.openlibrary.org/b/isbn/{{doc._source['ISBN'][0]}}-M.jpg" alt="" />
                             </div>
                             <div class="result_content">
                                 <div class="result_title" (click)="openDoc(doc._id, true)">
