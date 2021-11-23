@@ -14,6 +14,7 @@ import { ThousandSuffixesPipe }  from './pipes/thousand-suffixes.pipe';
 import { MapValuesPipe } from './pipes/map-values.pipe'
 import { DocPageComponent } from './visuals/shared/doc-page/doc-page.component';
 import { ConceptGraphComponent } from './concept-graph/concept-graph.component';
+import * as es from 'elasticsearch-browser/elasticsearch'
 @NgModule({
   declarations: [
     AppComponent,
@@ -31,7 +32,20 @@ import { ConceptGraphComponent } from './concept-graph/concept-graph.component';
     HttpModule,
     NgxPaginationModule
   ],
-  providers: [D3Service, SearchService],
+  providers: [D3Service, SearchService, 
+    {
+      provide: 'elasticsearch',
+      useFactory: () => {
+        return new es.Client({
+          host: 'https://angular_reader:angular_reader_pwd@bib-index.es.europe-west3.gcp.cloud.es.io:9243',
+            cloud: {
+              id: "bib-index:ZXVyb3BlLXdlc3QzLmdjcC5jbG91ZC5lcy5pbyQwMmU0M2U2YWFiOTE0MTMyOTMyMTQxYWIzOTA0Yjc1YyQ3ZDlmNGZiNjg0MzA0YTZiYWYxNjNmODEyZjg5ZWYwOQ=="
+            }
+        });
+      },
+      deps: [],
+    }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

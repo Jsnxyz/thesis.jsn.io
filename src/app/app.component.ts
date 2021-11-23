@@ -556,7 +556,7 @@ export class AppComponent implements OnInit {
         return storeObj;
     }
     sessionStart() {
-        if(!this.taskCode) return;
+        if(!this.taskCode) this.graphicalInterface();
         if(this.taskCode == 'T') {
             this.textualInterface();
             return;

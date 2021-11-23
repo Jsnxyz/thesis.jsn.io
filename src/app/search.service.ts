@@ -1,16 +1,4 @@
-import { Injectable, isDevMode } from '@angular/core';
-import { Client } from 'elasticsearch-browser';
-import { log } from 'async';
-
-
-const _lawSource: string = '_id,metadata.abbreviation,metadata.createdDate,metadata.lastChangedDate,metadata.importedDate,title,source,documentIdent'; //Add fields if need to be retrieved
-const _index: string = 'document-service';
-const _lawType: string = 'Laws';
-const _sectionType: string = 'Sections';
-
-declare var LHS_FRONTEND_PORT: number;
-declare var LHS_PUBLIC_DOMAIN: string;
-
+import { Injectable, Inject } from '@angular/core';
 @Injectable()
 export class SearchService {
     network_query = {
@@ -85,22 +73,8 @@ export class SearchService {
             }
         }
     }
-    private client: Client;
 
-    constructor() {
-        if (!this.client) {
-            this.connect();
-        }
-    }
-
-    private connect() {
-        let host = `34.90.119.30:9200`;
-
-        this.client = new Client({
-            host,
-            auth: 'elastic:Hsyy81i8'
-        });
-    }
+    constructor(@Inject('elasticsearch') private readonly client) {}
 
 
     createIndex(name): any {
@@ -147,7 +121,6 @@ export class SearchService {
     makeConnections() {
         return this.client.search({
             index: "bib-index",
-            type: "bib-type",
             body: this.network_facet_query
         });
     }
@@ -242,7 +215,6 @@ export class SearchService {
         console.log(JSON.stringify(query));
         return this.client.search({
             index: "bib-index",
-            type: "bib-type",
             body: query
         });
     }
@@ -262,7 +234,6 @@ export class SearchService {
         console.log(JSON.stringify(query));
         return this.client.search({
             index: "bib-index",
-            type: "bib-type",
             body: query
         });
     }
@@ -340,7 +311,6 @@ export class SearchService {
         console.log(JSON.stringify(query));
         return this.client.search({
             index: "bib-index",
-            type: "bib-type",
             _source: "Publication Year,Title,Uniform Title,Main Title,Contributors,Description,Subjects,Topics,thumbnail,ISBN",
             from: (pageNo - 1) * 10,
             body: query
@@ -349,14 +319,12 @@ export class SearchService {
     getDocument(id){
         return this.client.get({
             index: "bib-index",
-            type: "bib-type",
             id: id
         });
     }
     getMLTById(id){
         return this.client.search({
             index: "bib-index",
-            type: "bib-type",
             _source: "Main Title,Topics,Title",
             body: {
                     "size" : 20,
