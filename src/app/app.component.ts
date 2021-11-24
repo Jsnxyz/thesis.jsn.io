@@ -67,7 +67,7 @@ export class AppComponent implements OnInit {
     selectedMoreFacets: Facets = {};
     mltResults = [];
 
-    interfaceType = 0;
+    interfaceType = 2;
 
     //Session related 
     taskCode = "";
