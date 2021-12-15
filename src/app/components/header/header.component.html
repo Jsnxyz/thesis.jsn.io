@@ -1,0 +1,12 @@
+<div class="header">
+    <div class="search_field_wrap">
+        <!-- <div class="sessionWrap">
+            <input [disabled]="activeTask" [(ngModel)]="taskCode" type="text" placeholder="Task Code" />
+            <button [disabled]="activeTask" (click)="sessionStart()">Start</button>
+            <button (click)="sessionEnd()">End</button>
+        </div> -->
+        <input type="text" class="search_box" (keyup.enter)="getGraphAndDocs(searchBoxText)" [(ngModel)]="searchBoxText"
+            placeholder="Enter your query" #search />
+        <button class="search_button" (click)="getGraphAndDocs(searchBoxText)">Search</button>
+    </div>
+</div>

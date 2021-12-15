@@ -3,18 +3,32 @@ import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 
+import { AppRoutingModule } from './app-routing.module';
+
 import { D3Service, D3_DIRECTIVES } from './d3';
 import { SearchService } from './search.service'
-import { AppComponent } from './app.component';
 
-import { GraphComponent } from './visuals/graph/graph.component';
-import { SHARED_VISUALS } from './visuals/shared';
-import {NgxPaginationModule} from 'ngx-pagination';
+
+
+import { SHARED_VISUALS } from './components/visuals/shared';
+import { NgxPaginationModule } from 'ngx-pagination';
 import { ThousandSuffixesPipe }  from './pipes/thousand-suffixes.pipe';
 import { MapValuesPipe } from './pipes/map-values.pipe'
-import { DocPageComponent } from './visuals/shared/doc-page/doc-page.component';
-import { ConceptGraphComponent } from './concept-graph/concept-graph.component';
-import * as es from 'elasticsearch-browser/elasticsearch'
+
+import * as es from 'elasticsearch-browser/elasticsearch';
+
+// Components import 
+import { AppComponent } from './app.component';
+import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
+import { SelectedFiltersComponent } from './components/selected-filters/selected-filters.component';
+import { DocPageComponent } from './components/doc-page/doc-page.component';
+import { ConceptGraphComponent } from './components/concept-graph/concept-graph.component';
+import { GraphComponent } from './components/visuals/graph/graph.component';
+import { ExplorerComponent } from './components/explorer/explorer.component';
+import { FiltersComponent } from './components/filters/filters.component';
+import { HeaderComponent } from './components/header/header.component';
+import { ResultsComponent } from './components/results/results.component';
+import { SearchComponent } from './pages/search/search.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -24,13 +38,22 @@ import * as es from 'elasticsearch-browser/elasticsearch'
     ThousandSuffixesPipe,
     DocPageComponent,
     MapValuesPipe,
-    ConceptGraphComponent
+    ConceptGraphComponent,
+    PageNotFoundComponent,
+    SelectedFiltersComponent,
+    ExplorerComponent,
+    FiltersComponent,
+    HeaderComponent,
+    ResultsComponent,
+    SearchComponent
   ],
   imports: [
     BrowserModule,
     FormsModule,
     HttpModule,
-    NgxPaginationModule
+    NgxPaginationModule,
+    AppRoutingModule
+    
   ],
   providers: [D3Service, SearchService, 
     {

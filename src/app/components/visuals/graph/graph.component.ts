@@ -1,5 +1,5 @@
 import { Component, Input, ChangeDetectorRef, HostListener, ChangeDetectionStrategy, OnInit, SimpleChange, EventEmitter, OnChanges, Output, ViewChild } from '@angular/core';
-import { D3Service, ForceDirectedGraph, Node, Link, ForceSimulator } from '../../d3';
+import { D3Service, ForceDirectedGraph, Node, Link, ForceSimulator } from '../../../d3';
 import * as d3 from 'd3';
 
 @Component({

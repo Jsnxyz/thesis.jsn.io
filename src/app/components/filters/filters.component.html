@@ -1,0 +1,46 @@
+<div *ngIf="!resultPageToggle" class="filter_sections" [class.textual]="interfaceType == 1" [class.showFilter]="showFilter || interfaceType == 1">
+    <div class="filter_section_wrapper">
+        <ng-container *ngFor="let facet of getKeys(facets)">
+            <div *ngIf="facets[facet].items.length > 0" class="filter_section">
+                <div class="filter_header">
+                    <span class="facet_name">{{removeUnderscore(facet)}}</span>
+                </div>
+                <div class="filter_checkbox">
+                    <ng-container *ngFor="let facet_item of facets[facet].items">
+                        <input (change)="facetClick($event,facet,facet_item.key)" type="checkbox" [attr.name]="facet_item.key"
+                            [attr.value]="facet_item.key" [checked]="isChecked(facet,facet_item.key)">{{facet_item.key}}
+                        ({{facet_item.doc_count | thousandSuff
+                        }})<br>
+                    </ng-container>
+                </div>
+                <div *ngIf="facets[facet].items.length > 5" class="moreFacetDiv">
+                    <a class="moreFacetLink" (click)="getMoreFacetItems(facet)" title="Open Top 50 {{removeUnderscore(facet)}}">...more</a>
+                </div>
+
+            </div>
+        </ng-container>
+    </div>
+    <div *ngIf="!resultPageToggle && interfaceType == 2" [attr.title]="!showFilter? 'Open filters' : 'Close filters' "
+        (click)="showFilter = !showFilter" class="filter_button">
+        <i class="material-icons">{{showFilter? 'close' : 'filter_list' }}</i>
+    </div>
+</div>
+<div class="moreFacetsSection" *ngIf="showMoreFacets" (click)="showMoreFacets = false;">
+    <div class="moreFacetsWrapper" (click)="$event.stopPropagation();">
+        <ng-container *ngFor="let facet of getKeys(moreFacets)">
+            <div class="moreFacetsTitle">{{removeUnderscore(facet)}}</div>
+            <ng-container *ngFor="let facet_item of moreFacets[facet].items">
+                <div class="moreFacetsInput">
+                    <input (change)="moreFacetClick($event,facet,facet_item.key)" type="checkbox" [attr.name]="facet_item.key"
+                        [attr.value]="facet_item.key" [checked]="isChecked(facet,facet_item.key)">{{facet_item.key}}
+                    ({{facet_item.doc_count | thousandSuff}})
+                    <br>
+                </div>
+            </ng-container>
+        </ng-container>
+        <div class="moreFacetsActionsRow">
+            <a (click)="addFilters()">Apply Selected Filters</a>
+            <a (click)="showMoreFacets = false;">Close</a>
+        </div>
+    </div>
+</div>

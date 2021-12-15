@@ -1,0 +1,20 @@
+<div class="explore_section">
+    <ng-container *ngIf="nodes.length > 0">
+        <div [class.hidden]="resultPageToggle" class="find_node_wrap">
+            <div class="searchBoxAndTopicList">
+                <input type="text" (focus)="toggleTopicList()" (blur)="delayToggleTopicList()" class="search_box"
+                    [(ngModel)]="topicNodeInput" placeholder="Find node" />
+                <div *ngIf="showTopicList" class="topicListWrapper">
+                    <div class="topicsList" *ngFor="let topic of filterByTopicInput()"
+                        (click)="centerTopic(topic); toggleTopicList();" [innerHtml]="topic"></div>
+                </div>
+            </div>
+        </div>
+        <app-concept-graph *ngIf="resultPageToggle" [data]="mltResults"
+            (docIdClicked)="conceptClickLog();openDoc($event, false)"></app-concept-graph>
+        <graph [class.hidden]="resultPageToggle" [nodes]="nodes" [links]="links" [oldNodes]="oldNodes"
+            (nodesChanged)="setNodes($event)" (linkClicked)="openConnectingTopics($event)"
+            (nodeClicked)="openLinks($event)"></graph>
+    </ng-container>
+</div>
+<div class="tooltip" style="opacity: 0"></div>

@@ -1,0 +1,25 @@
+<div class="filterRowText">Selected filters</div>
+<ng-container *ngFor="let item of getKeys(selectedFacets)">
+    <ng-container *ngIf="selectedFacets[item].length > 0">
+        <div class="selectBox sB{{item}}" (click)="openSelectedFilterDropDown(item)">
+            <div class="selectName">
+                {{removeUnderscore(item)}}
+                <i class="material-icons">
+                    keyboard_arrow_down
+                </i>
+            </div>
+            <div class="selectItems sB{{item}}" (click)="$event.stopPropagation()">
+                <ng-container *ngFor="let value of selectedFacets[item]">
+                    <div class="selectItem">
+                        <div class="itemText">
+                            {{value}}
+                        </div>
+                        <div class="itemRemove" (click)="removeFilter(item,value)">
+                            <i class="material-icons">close</i>
+                        </div>
+                    </div>
+                </ng-container>
+            </div>
+        </div>
+    </ng-container>
+</ng-container>

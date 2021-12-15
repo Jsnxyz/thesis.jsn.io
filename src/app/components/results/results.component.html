@@ -1,0 +1,56 @@
+<div class="results_section" [class.textual]="interfaceType == 1">
+    <div [class.docOpened]="resultPageToggle" class="result_page">
+        <div class="results_section_wrapper">
+            <div class="results_section_inner_wrapper">
+                <div class="result" *ngFor="let doc of docResults | paginate: { itemsPerPage: 10, currentPage: currentPage, totalItems: totalDocs }">
+                    <div class="imgPreview">
+                        <img *ngIf="doc._source['thumbnail']" [src]="doc._source['thumbnail']" ALIGN="left" />
+                        <img class="oLImg" ALIGN="left" *ngIf="!doc._source['thumbnail'] && doc._source['ISBN']"
+                            src="https://covers.openlibrary.org/b/isbn/{{doc._source['ISBN'][0]}}-M.jpg" alt="" />
+                    </div>
+                    <div class="result_content">
+                        <div class="result_title" (click)="openDoc(doc._id, true)">
+                            <i *ngIf="activeTask" class="material-icons bookmark" [class.active]="itemInBookmark(doc._id)" (click)="editSessionDoc(doc._id, $event)">star_rate</i>
+                            {{doc._source['Title'][0] || doc._source['Uniform Title'] || doc._source['Main Title']}}
+                        </div>
+                        <div *ngIf="doc._source['Description']" class="result_description">
+                            <div class="result_clamp" [innerHtml]="limitText(doc._source['Description'])"></div>
+                        </div>
+                        <div *ngIf="doc._source['Publication Year']" class="result_year result_pubyear">
+                                <a class="result_links" *ngFor="let name of doc._source['Publication Year']" (click)="openDocsBySingleFacet('Publication Year',name)"
+                                    [innerHtml]="name"></a>
+                        </div>
+                        <div *ngIf="doc._source['Contributors']" class="result_year result_contributors">
+                            <a class="result_links" *ngFor="let name of doc._source['Contributors']" (click)="openDocsBySingleFacet('Contributors',name)"
+                                [innerHtml]="name"></a>
+                        </div>
+                        <div *ngIf="doc._source['Subjects']" class="result_year">
+                            <div class="result_subject">
+                                <a class="result_links" *ngFor="let subject of getUnique(doc._source['Subjects'])"
+                                    (click)="openDocsBySingleFacet('Subjects',subject)" [innerHtml]="subject"></a>
+                            </div>
+                        </div>
+                        <div *ngIf="doc._source['Topics']" class="result_year result_topic">
+                            <a class="result_links" *ngFor="let topic of doc._source['Topics']" (click)="openDocsBySingleFacet('Topics',topic)"
+                                [innerHtml]="topic"></a>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+        <pagination-controls class="results-pagination" *ngIf="totalDocs > 10" maxSize="5" (pageChange)="paginateClick($event)"></pagination-controls>
+    </div>
+    <div *ngIf="docResults.length == 0">
+        <ng-container *ngIf="interfaceType == 2">
+            Information:<br>
+            Search for an item in the search box to find matched documents. <br>
+            Select nodes to find documents within that topic. <br>
+            Click on Filter icon to filter your results<br>
+            Use find node input to center the graph to that node. <br>
+        </ng-container>
+    </div>
+    <div [class.docOpened]="resultPageToggle" class="doc_page">
+        <app-doc-page *ngIf="openedDoc" (back)="goBackToDocs()" [doc]="openedDoc"></app-doc-page>
+    </div>
+</div>
