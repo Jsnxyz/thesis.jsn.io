@@ -10,4 +10,6 @@ Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app w
 ## Live Demo
 Live demo can be found [here](https://jsnxyz.github.io/thesis_jsn/)
 
+Currently the service is down because I cannot afford to pay for Elastic Cloud/GCP. :[
+
 Click on start button on right top corner. 
