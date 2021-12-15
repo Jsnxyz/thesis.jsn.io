@@ -1,4 +1,5 @@
 import { Injectable, Inject } from '@angular/core';
+
 @Injectable()
 export class SearchService {
     network_query = {
@@ -73,8 +74,9 @@ export class SearchService {
             }
         }
     }
-
-    constructor(@Inject('elasticsearch') private readonly client) {}
+    
+    constructor(@Inject('elasticsearch') private readonly client) {
+    }
 
 
     createIndex(name): any {
@@ -82,10 +84,18 @@ export class SearchService {
     }
 
     isAvailable(): any {
-        return this.client.ping({
-            requestTimeout: Infinity,
-            body: 'hello JavaSampleApproach!'
-        });
+        return new Promise( (resolve, reject) => {
+            this.client.ping({
+                // ping usually has a 3000ms timeout
+                requestTimeout: 1000
+              }, function (error) {
+                if (error) {
+                  reject('elasticsearch cluster is down!');
+                } 
+                resolve('All is well');
+              });
+        })
+        
     }
 
     addToIndex(value): any {

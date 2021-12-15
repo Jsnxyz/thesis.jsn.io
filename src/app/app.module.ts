@@ -14,7 +14,8 @@ import { ThousandSuffixesPipe }  from './pipes/thousand-suffixes.pipe';
 import { MapValuesPipe } from './pipes/map-values.pipe'
 import { DocPageComponent } from './visuals/shared/doc-page/doc-page.component';
 import { ConceptGraphComponent } from './concept-graph/concept-graph.component';
-import * as es from 'elasticsearch-browser/elasticsearch'
+import * as es from 'elasticsearch-browser/elasticsearch';
+import {errors} from 'elasticsearch';
 @NgModule({
   declarations: [
     AppComponent,
@@ -41,6 +42,8 @@ import * as es from 'elasticsearch-browser/elasticsearch'
             cloud: {
               id: "bib-index:ZXVyb3BlLXdlc3QzLmdjcC5jbG91ZC5lcy5pbyQwMmU0M2U2YWFiOTE0MTMyOTMyMTQxYWIzOTA0Yjc1YyQ3ZDlmNGZiNjg0MzA0YTZiYWYxNjNmODEyZjg5ZWYwOQ=="
             }
+        }, (err: errors) => {
+          console.log(err)
         });
       },
       deps: [],

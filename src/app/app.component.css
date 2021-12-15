@@ -428,3 +428,28 @@ div .result_links:last-child::after{
 .selectName i {
     margin-top: -3px;
 }
+
+.esUnavailable {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: center;
+    justify-content: center;
+    height: 100vh;
+    background: #fff;
+}
+
+.esUnavailable_text__big::after {
+    content: ':(';
+    font-size: 60px;
+    padding-left: 35px;
+}
+.esUnavailable_text__big {
+    display: block;
+    font-size: 30px;
+    margin-bottom: 20px;
+}
+.esUnavailable_text {
+    transform: translateY(35%);
+    font-size: 20px;
+}

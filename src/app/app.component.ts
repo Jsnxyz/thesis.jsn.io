@@ -12,6 +12,11 @@ interface Facets {
     Contributors?: any;
     Topics?: any;
 }
+enum EsStatus {
+    Inactive = 0,
+    Active = 1,
+    Processing = 2
+}
 interface SessionStore {
     // taskCode: number;
     interfaceType:number;
@@ -34,6 +39,8 @@ interface SessionStore {
     styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
+    esAvailable: EsStatus = EsStatus.Processing;
+
     nodes: Node[] = [];
     links: Link[] = [];
     oldNodes:Node[] = [];
@@ -78,22 +85,26 @@ export class AppComponent implements OnInit {
     constructor(private es: SearchService) {
     }
     ngOnInit() {
-
-        // Change this to fit sessions.
-        this.activeTask = window.sessionStorage.getItem("active");
-        if(this.activeTask) {
-            this.taskCode = this.activeTask;
-            this.sessionResume();
-        }
-        this.getGraphAndDocs("");        
-        this.clickSubscription = this.mouseClick.subscribe((evt: MouseEvent) => {
-            let element:any = evt.srcElement;
-            if (element) {
-                if (!(element.closest('.selectBox') !== null || element.classList.contains(".selectBox"))) {
-                    this.closeDropDowns();
-                }
+        this.es.isAvailable().then(response => {
+            this.esAvailable = EsStatus.Active;
+            this.activeTask = window.sessionStorage.getItem("active");
+            if(this.activeTask) {
+                this.taskCode = this.activeTask;
+                this.sessionResume();
             }
-        });
+            this.getGraphAndDocs("");        
+            this.clickSubscription = this.mouseClick.subscribe((evt: MouseEvent) => {
+                let element:any = evt.srcElement;
+                if (element) {
+                    if (!(element.closest('.selectBox') !== null || element.classList.contains(".selectBox"))) {
+                        this.closeDropDowns();
+                    }
+                }
+            });
+        }, error => {
+            this.esAvailable = EsStatus.Inactive;
+        })
+        
     }
     toUnique(a, b?, c?) { //array,placeholder,placeholder
         b = a.length;
